@@ -85,6 +85,7 @@
                         <button
                                 class="btn btn-sm btn-secondary text-nowrap mb-1"
                                 hx-get="{{ url_for('admin-timer-hours-modal', event_uniq_id=admin_event.uniq_id, timer_id=admin_timer.id) }}"
+                                preload
                                 hx-target="#admin-modal-container"
                                 hx-swap="innerHTML"
                                 hx-trigger="click, keyup[key=='Escape'] from:body"
@@ -156,6 +157,7 @@
                         <button
                                 class="btn btn-sm btn-primary text-nowrap"
                                 hx-get="{{ url_for('admin-timer-hours-hour-modal', event_uniq_id=admin_event.uniq_id, timer_id=admin_timer.id, timer_hour_id=timer_hour.id) }}"
+                                preload
                                 hx-target="#admin-modal-container"
                                 hx-swap="innerHTML"
                                 hx-indicator="#please-wait">

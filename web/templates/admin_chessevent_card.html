@@ -26,6 +26,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-chessevent-modal', action='update', event_uniq_id=admin_event.uniq_id, chessevent_id=chessevent.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -50,6 +51,7 @@
         <button
                 class="btn btn-sm btn-danger p-1"
                 hx-get="{{ url_for('admin-chessevent-modal', action='delete', event_uniq_id=admin_event.uniq_id, chessevent_id=chessevent.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

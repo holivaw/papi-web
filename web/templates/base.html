@@ -17,6 +17,7 @@
             <script src="{{ url_for('static', file_path='/lib/htmx/htmx-1.9.12/htmx.min.js') }}"></script>
             <script src="{{ url_for('static', file_path='/lib/htmx/htmx-1.9.12/ext/remove-me.js') }}"></script>
             <script src="{{ url_for('static', file_path='/lib/htmx/htmx-1.9.12/ext/multi-swap.js') }}"></script>
+            <script src="{{ url_for('static', file_path='/lib/htmx/htmx-1.9.12/ext/preload.js') }}"></script>
             {# https://github.com/SortableJS/Sortable #}
             <script src="{{ url_for('static', file_path='/lib/sortable/sortable-1.15.2/Sortable.min.js') }}"></script>
             <script src="{{ url_for('static', file_path='/lib/htmx/htmx-sortable.js') }}"></script>
@@ -27,7 +28,7 @@
             {% endblock %}
         {% endif %}
     </head>
-    <body hx-ext="multi-swap">
+    <body hx-ext="multi-swap,preload">
         <div id="messages" class="w-50 position-fixed top-0 end-0 m-2 z-2">
             {% include 'messages.html' %}
         </div>
@@ -75,16 +76,23 @@
     </body>
     <script>
         var confirm_when_leaving = true;
-        document.addEventListener('htmx:afterRequest', function(evt) {
+        /* console.log('confirm_when_leaving < ' + confirm_when_leaving); */
+        document.addEventListener('htmx:beforeOnLoad', function(evt) {
+            /* console.log('htmx:beforeOnLoad: confirm_when_leaving=' + confirm_when_leaving); */
             if (evt.detail.xhr.getResponseHeader('hx-redirect')) {
+                /* console.log('hx-redirect header received: ' + event.detail.xhr.getResponseHeader('hx-redirect')); */
                 confirm_when_leaving = false;
+                /* console.log('confirm_when_leaving < ' + confirm_when_leaving); */
+            } else {
+                /* console.log('hx-redirect header not found'); */
             }
         });
         $(window).bind('beforeunload', function(){
+            /* console.log('beforeunload: confirm_when_leaving=' + confirm_when_leaving); */
             if (confirm_when_leaving) {
                 return 'Voulez-vous redémarrer l\'application Papi-web ?';
             } else {
-                return false;
+                return '';
             }
         });
     </script>

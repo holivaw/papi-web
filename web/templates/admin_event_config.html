@@ -8,6 +8,7 @@
         <button
                 class="btn btn-primary text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='update', event_uniq_id=admin_event.uniq_id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -18,6 +19,7 @@
         <button
                 class="btn btn-primary text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='clone', event_uniq_id=admin_event.uniq_id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -28,6 +30,7 @@
         <button
                 class="btn btn-danger text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='delete', event_uniq_id=admin_event.uniq_id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

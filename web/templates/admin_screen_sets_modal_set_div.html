@@ -72,6 +72,7 @@
                         <button
                                 class="btn btn-sm btn-secondary text-nowrap mb-1"
                                 hx-get="{{ url_for('admin-screen-sets-modal', event_uniq_id=admin_event.uniq_id, screen_id=admin_screen.id) }}"
+                                preload
                                 hx-target="#admin-modal-container"
                                 hx-swap="innerHTML"
                                 hx-trigger="click, keyup[key=='Escape'] from:body"
@@ -209,6 +210,7 @@
                         <button
                                 class="btn btn-sm btn-primary text-nowrap"
                                 hx-get="{{ url_for('admin-screen-sets-set-modal', event_uniq_id=admin_event.uniq_id, screen_id=admin_screen.id, screen_set_id=screen_set.id) }}"
+                                preload
                                 hx-target="#admin-modal-container"
                                 hx-swap="innerHTML"
                                 hx-indicator="#please-wait">

@@ -72,6 +72,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-family-modal', action='update', event_uniq_id=admin_event.uniq_id, family_id=family.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -87,6 +88,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-family-modal', action='clone', event_uniq_id=admin_event.uniq_id, family_id=family.id) }}"
+                preload
                 hx-swap="multi:#messages,#admin-header,#admin-content"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -99,6 +101,7 @@
         <button
                 class="btn btn-sm btn-danger p-1"
                 hx-get="{{ url_for('admin-family-modal', action='delete', event_uniq_id=admin_event.uniq_id, family_id=family.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

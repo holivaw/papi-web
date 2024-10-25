@@ -35,6 +35,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-timer-modal', action='update', event_uniq_id=admin_event.uniq_id, timer_id=timer.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -47,6 +48,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-timer-hours-modal', action='update', event_uniq_id=admin_event.uniq_id, timer_id=timer.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -63,6 +65,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-timer-modal', action='clone', event_uniq_id=admin_event.uniq_id, timer_id=timer.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -75,6 +78,7 @@
         <button
                 class="btn btn-sm btn-danger p-1"
                 hx-get="{{ url_for('admin-timer-modal', action='delete', event_uniq_id=admin_event.uniq_id, timer_id=timer.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

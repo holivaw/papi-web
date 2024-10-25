@@ -405,6 +405,7 @@
                                 {% else %}
                                     hx-get="{{ url_for('admin') }}"
                                 {% endif %}
+                                preload
                                 hx-swap="multi:#messages,#admin-header,#admin-content"
                                 hx-trigger="click, keyup[key=='Escape'] from:body"
                                 hx-indicator="#please-wait"

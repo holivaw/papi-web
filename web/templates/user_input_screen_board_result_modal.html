@@ -58,6 +58,7 @@
                     hx-trigger="click, keyup[key=='Escape'] from:body"
                     class="btn btn-secondary fs-3 p-3"
                     hx-get="{{ url_for('user-screen', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id) }}"
+                    preload
                     hx-target="body"
                     hx-swap="transition:true"
                     hx-indicator="#please-wait"

@@ -11,6 +11,7 @@
     <button
             class="btn btn-link link-dark fs-5 fw-bold px-1 py-0"
             hx-get="{{ url_for('admin-tab', admin_tab=target_tab) }}"
+            preload
             hx-swap="multi:#admin-header,#admin-content"
             hx-indicator="#please-wait"
             hx-indicator="#please-wait"
@@ -26,6 +27,7 @@
                     class="nav-link {{ nav_tab.class }} {% if nav_tab.disabled %}link-secondary{% else %}link-dark{% endif %} border-dark {%if active %}active{%else%}bg-body-secondary{% endif %} fw-bold px-2 py-0 ms-1"
                     id="nav-{{ nav_id }}-tab"
                     hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab=nav_id) }}"
+                    preload
                     hx-swap="multi:#admin-header,#admin-content"
                     data-bs-toggle="tab"
                     data-bs-target="#nav-{{ nav_tab.name }}"

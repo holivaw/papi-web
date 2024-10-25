@@ -11,6 +11,7 @@
         <button
                 class="btn btn-primary text-nowrap me-2"
                 hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab='timers') }}"
+                preload
                 hx-swap="multi:#admin-header,#admin-content"
                 hx-indicator="#please-wait"
         >
@@ -21,6 +22,7 @@
         <button
                 class="btn btn-primary text-nowrap"
                 hx-get="{{ url_for('admin-timer-create-modal', event_uniq_id=admin_event.uniq_id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

@@ -129,6 +129,7 @@
         <button
                 class="btn btn-sm btn-primary p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='update', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -145,6 +146,7 @@
         <button
                 class="btn btn-sm btn-primary p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='clone', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"
@@ -157,6 +159,7 @@
         <button
                 class="btn btn-sm btn-danger p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='delete', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
+                preload
                 hx-target="#admin-modal-container"
                 hx-swap="innerHTML"
                 data-bs-toggle="modal"

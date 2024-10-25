@@ -4,6 +4,7 @@
     <button
             class="btn btn-link link-dark fs-5 fw-bold px-1 py-0"
             hx-get="{{ url_for('index') }}"
+            preload
             hx-target="body"
             hx-trigger="click, keyup[key=='Escape'] from:body"
             hx-indicator="#please-wait"
@@ -31,6 +32,7 @@
                 class="user-nav-link nav-link {% if nav_tab.disabled %}link-secondary{% else %}link-dark{% endif %} border-dark {%if user_tab == nav_id %}active{%else%}bg-body-secondary{% endif %} fw-bold px-2 py-0 ms-1"
                 id="nav-{{ nav_id }}-tab"
                 hx-get="{{ url_for('user-tab', user_tab=nav_id) }}"
+                preload
                 hx-swap="multi:#user-header,#user-content"
                 data-bs-toggle="tab"
                 data-bs-target="#nav-{{ nav_tab.name }}"

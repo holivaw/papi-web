@@ -6,6 +6,7 @@
             {% endif %}"
         {% if screen.type == 'input' and not board.result_str %}
             hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
+            preload
             hx-target="body"
             hx-swap="transition:true"
         {% endif %}
