@@ -20,3 +20,7 @@ Depuis la version 2.0, le code source est ouvert aux contributions sur GitHub, i
 # Papi-web - Remerciements
 
 Remerciements à Dominique RUHLMANN pour l'adaptation de la plateforme Chess Event pour permettre la création des fichiers Papi depuis Papi-web et à tou·tes les bêta-testeur·euses !
+
+Voir également :
+- [Copyright](../COPYRIGHT.md)
+- [Licence AGPL](../LICENSE.md)

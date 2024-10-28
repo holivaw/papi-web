@@ -163,7 +163,7 @@ class PapiWebConfig(metaclass=Singleton):
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
-    copyright: str = '© Pascal AUBRY 2013-2024'
+    copyright: str = '© Projet Papi-web 2013-2024'
 
     event_path: Path = Path() / 'events'
 
