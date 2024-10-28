@@ -2,6 +2,9 @@
 
 {% extends 'base.html' %}
 
+{% block header %}
+{% endblock header %}
+
 {% block content %}
     <div id="home-content" class="content home-content">
         <div class="row justify-content-center">
@@ -72,8 +75,8 @@
                 </div>
             </div>
         </div>
-        {{ modal_script() }}
-        {{ tooltip_script() }}
-        {{ background_script(background_info) }}
     </div>
 {% endblock content %}
+
+{% block footer %}
+{% endblock footer %}

@@ -24,8 +24,6 @@
             {# https://github.com/vakata/jstree #}
             <link rel="stylesheet" href="{{ url_for('static', file_path='/lib/jstree/jstree-3.3.17-dist/themes/default/style.min.css') }}" type="text/css" />
             <script src="{{ url_for('static', file_path='/lib/jstree/jstree-3.3.17-dist/jstree.min.js') }}"></script>
-            {% block head %}
-            {% endblock %}
         {% endif %}
     </head>
     <body hx-ext="multi-swap,preload">
@@ -33,62 +31,66 @@
             {% include 'messages.html' %}
         </div>
         <div id="header-wrapper" class="header-wrapper top-0 position-sticky z-1">
+            <!-- block header -->
             {% block header %}
-            {% endblock %}
+                HEADER
+            {% endblock header %}
+            <!-- end block header -->
         </div>
         <div id="content-wrapper" class="content-wrapper">
+            <!-- block content -->
             {% block content %}
-                Body content
-            {% endblock %}
+                BODY CONTENT
+            {% endblock content %}
+            <!-- end block content -->
         </div>
         <div id="footer-wrapper" class="footer-wrapper">
+            <!-- block footer -->
             {% block footer %}
-            {% endblock %}
+                FOOTER
+            {% endblock footer %}
+            <!-- end block footer -->
         </div>
-        {% if not (user_screen and user_screen.type == 'image') %}
-            <div id="copyright-wrapper" class="copyright-wrapper">
-                <div id="copyright" class="copyright fst-italic text-center">
-                    Papi-web {{ papi_web_config.version }} - {{ papi_web_config.copyright }} - {{ papi_web_config.url }}
-                </div>
+        <div id="copyright-wrapper" class="copyright-wrapper">
+            {# #copyright may be hidden by the copyright_script_macro #}
+            <div id="copyright" class="copyright fst-italic text-center">
+                Papi-web {{ papi_web_config.version }} - {{ papi_web_config.copyright }} - {{ papi_web_config.url }}
             </div>
-        {% endif %}
+        </div>
 	    <div id="please-wait-wrapper">
             <div
                     id="please-wait"
                     class="please-wait htmx-indicator position-fixed top-50 start-50 translate-middle"
             ></div>
         </div>
-        <div id="modals"
+        <div id="modal-wrapper"
             class="modal modal-blur overflow-auto"
             style="display: none"
             aria-hidden="false"
             data-bs-backdrop="static"
             data-bs-keyboard="false"
             tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered d-block w-80 mw-100" role="document">
-                <div class="modal-content"></div>
-            </div>
+            <!-- block modal -->
+            {% block modal %}
+                MODAL
+            {% endblock modal %}
+            <!-- end block modal -->
         </div>
-        {% if not request.htmx %}
-            <script src="{{ url_for('static', file_path='/lib/bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js') }}"></script>
-            {{ tooltip_script() }}
-        {% endif %}
+        {{ modal_script() }}
+        {{ tooltip_script() }}
+        {{ background_script(background_info) }}
     </body>
+    <script src="{{ url_for('static', file_path='/lib/bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js') }}"></script>
+    {# call this again here once Bootstrap is initialized since the first call did nothing #}
+    {{ tooltip_script() }}
     <script>
         var confirm_when_leaving = true;
-        /* console.log('confirm_when_leaving < ' + confirm_when_leaving); */
         document.addEventListener('htmx:beforeOnLoad', function(evt) {
-            /* console.log('htmx:beforeOnLoad: confirm_when_leaving=' + confirm_when_leaving); */
             if (evt.detail.xhr.getResponseHeader('hx-redirect')) {
-                /* console.log('hx-redirect header received: ' + event.detail.xhr.getResponseHeader('hx-redirect')); */
                 confirm_when_leaving = false;
-                /* console.log('confirm_when_leaving < ' + confirm_when_leaving); */
-            } else {
-                /* console.log('hx-redirect header not found'); */
             }
         });
         $(window).bind('beforeunload', function(){
-            /* console.log('beforeunload: confirm_when_leaving=' + confirm_when_leaving); */
             if (confirm_when_leaving) {
                 return 'Voulez-vous redémarrer l\'application Papi-web ?';
             } else {

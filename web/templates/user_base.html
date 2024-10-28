@@ -7,15 +7,21 @@
         <div hx-ext="bs-tabs" class="bs-tabs">
             <nav>
                 <div class="nav nav-tabs mt-1" id="nav-tab" role="tablist">
+                    <!-- end block user_header_back_button -->
                     {% block user_header_back_button %}
                         USER_HEADER_BACK_BUTTON
                     {% endblock user_header_back_button %}
+                    <!-- end block user_header_back_button -->
+                    <!-- end block user_header_refresher -->
                     {% block user_header_refresher %}
                         USER_HEADER_REFRESHER
                     {% endblock user_header_refresher %}
+                    <!-- end block user_header_refresher -->
+                    <!-- block user_header_nav -->
                     {% block user_header_nav %}
                         USER_HEADER_NAV
                     {% endblock user_header_nav %}
+                    <!-- end block user_header_nav -->
                     {% include 'user_columns_buttons.html' %}
                 </div>
             </nav>
@@ -26,11 +32,21 @@
 
 {% block content %}
     <div id="user-content" class="content user-content tab-content border border-dark mx-2 p-3">
+        <!-- block user_content -->
         {% block user_content %}
             USER_CONTENT
         {% endblock user_content %}
-        {{ modal_script() }}
-        {{ tooltip_script() }}
-        {{ background_script(background_info) }}
+        <!-- end block user_content -->
    </div>
 {% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block modal %}
+    <!-- block user_modal -->
+    {% block user_modal %}
+        USER_MODAL
+    {% endblock user_modal %}
+    <!-- end block user_modal -->
+{% endblock modal %}

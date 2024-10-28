@@ -146,8 +146,10 @@
             $('body .tooltip-arrow').remove();
         });
         {# Enable Bootstrap tooltips cf https://getbootstrap.com/docs/5.3/components/tooltips/ #}
-        tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-        tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        if (typeof bootstrap !== 'undefined') { {# bootstrap is not set when loading the first page #}
+            tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        }
     </script>
 {% endmacro %}
 
