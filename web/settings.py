@@ -4,6 +4,7 @@ from typing import Sequence
 
 from litestar import Router
 from litestar.contrib.jinja import JinjaTemplateEngine
+from litestar.datastructures import CacheControlHeader
 from litestar.middleware.session.client_side import CookieBackendConfig
 from litestar.static_files import create_static_files_router
 from litestar.template import TemplateConfig

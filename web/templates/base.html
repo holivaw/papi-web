@@ -76,9 +76,11 @@
             {% endblock modal %}
             <!-- end block modal -->
         </div>
-        {{ modal_script() }}
         {{ tooltip_script() }}
         {{ background_script(background_info) }}
+        <script>
+            $('body').css('padding-right', '0');
+        </script>
     </body>
     <script src="{{ url_for('static', file_path='/lib/bootstrap/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js') }}"></script>
     {# call this again here once Bootstrap is initialized since the first call did nothing #}

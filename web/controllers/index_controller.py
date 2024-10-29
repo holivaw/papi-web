@@ -6,6 +6,7 @@ from typing import Annotated, Any
 
 from httpdate import unixtime_to_httpdate, httpdate_to_unixtime
 from litestar import get, Controller
+from litestar.config.response_cache import CACHE_FOREVER
 from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate, ClientRedirect
 from litestar.enums import RequestEncodingType
@@ -258,7 +259,8 @@ class IndexController(AbstractController):
 
     @get(
         path='/',
-        name='index'
+        name='index',
+        cache=1,
     )
     async def index(self, request: HTMXRequest, ) -> Template:
         web_context: WebContext = WebContext(request, {})
@@ -270,7 +272,8 @@ class IndexController(AbstractController):
 
     @get(
         path='/favicon.ico',
-        name='favicon'
+        name='favicon',
+        cache=CACHE_FOREVER,
     )
     async def favicon(self, request: HTMXRequest, ) -> Redirect:
         return Redirect(request.app.route_reverse('static', file_path='/images/papi-web.ico'))

@@ -20,13 +20,9 @@
                     id="nav-{{ nav_id }}-tab"
                     hx-get="{{ url_for('admin-tab', admin_tab=nav_id) }}"
                     preload
-                    hx-swap="multi:#admin-header,#admin-content"
-                    data-bs-toggle="tab"
-                    data-bs-target="#nav-{{ nav_tab.name }}"
+                    hx-target="body"
                     type="button"
                     role="tab"
-                    aria-controls="nav-{{ nav_id }}"
-                    aria-selected="true"
                     hx-indicator="#please-wait"
                     {% if nav_tab.disabled %}
                         disabled
@@ -48,7 +44,6 @@
                     class="tab-pane fade {% if active %}show active{% endif %}"
                     id="nav-{{ nav_id }}"
                     role="tabpanel"
-                    aria-labelledby="nav-{{ nav_id }}-tab"
                     tabindex="0"
             >
                 {% if active %}
@@ -58,3 +53,9 @@
         {% endwith %}
     {% endfor %}
 {% endblock admin_content %}
+
+{% block admin_modal %}
+    {% if modal %}
+        {% include 'admin_event_modal.html' %}
+    {% endif %}
+{% endblock admin_modal %}

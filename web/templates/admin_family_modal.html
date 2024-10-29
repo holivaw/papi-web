@@ -11,7 +11,7 @@
             {% else %}
                 hx-get="{{ url_for('unknown-action-' ~ action) }}"
             {% endif %}
-            hx-swap="multi:#messages,#admin-header,#admin-content"
+            hx-target="body"
             hx-indicator="#please-wait">
         <div class="modal-content">
             <div class="modal-header">
@@ -468,7 +468,6 @@
                         <button
                                 type="submit"
                                 class="text-nowrap white btn {% if action == 'delete' %}btn-danger{% else %}btn-primary{% endif %}"
-                                data-bs-dismiss="modal"
                         >
                             <i class="bi-floppy-fill"></i>
                             {% if action == 'create' %}
@@ -489,10 +488,10 @@
                                 class="btn btn-secondary text-nowrap"
                                 hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab='families') }}"
                                 preload
-                                hx-swap="multi:#messages,#admin-header,#admin-content"
+                                hx-target="body"
                                 hx-trigger="click, keyup[key=='Escape'] from:body"
                                 hx-indicator="#please-wait"
-                                data-bs-dismiss="modal">
+                        >
                             <i class="bi-x-circle-fill"></i> Annuler
                         </button>
                     </div>
@@ -502,5 +501,5 @@
     </form>
 </div>
 <script>
-    (new bootstrap.Modal(document.getElementById('admin-modal-container'))).show();
+    (new bootstrap.Modal(document.getElementById('modal-wrapper'))).show();
 </script>

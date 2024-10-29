@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-dialog-centered admin-event-edit-modal d-block w-80 mw-100">
     <form
             {% if action == 'create' %}
-                hx-post="{{ url_for('admin-event-' ~ action) }}"
+                hx-post="{{ url_for('admin-tab-' ~ action ~ '-event', admin_tab=admin_tab) }}"
             {% elif action == 'clone' %}
                 hx-post="{{ url_for('admin-event-' ~ action, event_uniq_id=admin_event.uniq_id) }}"
             {% elif action == 'delete' %}
@@ -11,7 +11,7 @@
             {% else %}
                 hx-get="{{ url_for('unknown-action-' ~ action) }}"
             {% endif %}
-            hx-swap="multi:#messages,#admin-header,#admin-content"
+            hx-target="body"
             hx-indicator="#please-wait">
         <div class="modal-content">
             <div class="modal-header">
@@ -19,11 +19,11 @@
                     {% if action == 'create' %}
                         Création d'un nouvel évènement
                     {% elif action == 'clone' %}
-                        Duplication  de l'évènement [{{ admin_event.uniq_id }}]
+                        Duplication de l'évènement [{{ admin_event.uniq_id }}]
                     {% elif action == 'update' %}
                         Modification de l'évènement [{{ admin_event.uniq_id }}]
                     {% else %}
-                        Suppression  de l'évènement [{{ admin_event.uniq_id }}]
+                        Suppression de l'évènement [{{ admin_event.uniq_id }}]
                     {% endif %}
                 </h2>
             </div>
@@ -286,7 +286,7 @@
                                             }
                                         );
                                         $('#background-image-picker').on("changed.jstree", function (e, data) {
-                                            console.log(data.selected);
+                                            /* console.log(data.selected); */
                                         });
                                     </script>
                             </div>
@@ -403,13 +403,12 @@
                                 {% if admin_event %}
                                     hx-get="{{ url_for('admin-event', event_uniq_id=admin_event.uniq_id) }}"
                                 {% else %}
-                                    hx-get="{{ url_for('admin') }}"
+                                    hx-get="{{ url_for('admin-tab', admin_tab=admin_tab) }}"
                                 {% endif %}
                                 preload
-                                hx-swap="multi:#messages,#admin-header,#admin-content"
+                                hx-target="body"
                                 hx-trigger="click, keyup[key=='Escape'] from:body"
-                                hx-indicator="#please-wait"
-                                data-bs-dismiss="modal">
+                                hx-indicator="#please-wait">
                             <i class="bi-x-circle-fill"></i> Annuler
                         </button>
                     </div>
@@ -419,5 +418,5 @@
     </form>
 </div>
 <script>
-    (new bootstrap.Modal(document.getElementById('admin-modal-container'))).show();
+    (new bootstrap.Modal(document.getElementById('modal-wrapper'))).show();
 </script>

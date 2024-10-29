@@ -125,17 +125,6 @@
     </span>
 {% endmacro %}
 
-{% macro modal_script() %}
-    <!-- modal_script() -->
-    <script>
-        {# manually remove the modal backdrop when reloading .content div (too many modal-backdrop divs are created by Bootstrap when opening modals) #}
-        $(document).ready(function(){
-            $('body .modal-backdrop').remove();
-        });
-        $('body').css('padding-right', '0');
-    </script>
-{% endmacro %}
-
 {% macro tooltip_script() %}
     <!-- tooltip_script() -->
     <script>
@@ -151,6 +140,7 @@
             tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         }
     </script>
+    <!-- end tooltip_script() -->
 {% endmacro %}
 
 {% macro background_script(background_info) %}
@@ -178,6 +168,7 @@
             });
         }
     </script>
+    <!-- end background_script() -->
 {% endmacro %}
 
 {% macro copyright_script(show) %}
@@ -186,4 +177,5 @@
         {# this macro allows us to show copyright on all pages but image screens #}
         $('#copyright').css('display', '{{ "block" if show else "none" }}');
     </script>
+    <!-- end copyright_script() -->
 {% endmacro %}

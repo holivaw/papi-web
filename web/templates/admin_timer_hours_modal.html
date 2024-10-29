@@ -15,8 +15,7 @@
                 <form
                         class="sortable"
                         hx-patch="{{ url_for('admin-timer-reorder-hours', event_uniq_id=admin_event.uniq_id, timer_id=admin_timer.id) }}"
-                        hx-target="#admin-timer-hours-modal"
-                        hx-swap="innerHTML"
+                        hx-target="body"
                         hx-trigger="end"
                         hx-indicator="#please-wait">
             {% endif %}
@@ -40,8 +39,7 @@
                                 disabled
                             {% else %}
                                 hx-post="{{ url_for('admin-timer-hour-add', event_uniq_id=admin_event.uniq_id, timer_id=admin_timer.id) }}"
-                                hx-target="#admin-timer-hours-modal"
-                                hx-swap="innerHTML"
+                                hx-target="body"
                                 hx-indicator="#please-wait"
                             {% endif %}
                     >
@@ -56,10 +54,8 @@
                             {% else %}
                                 hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab='timers') }}"
                                 preload
-                                hx-swap="multi:#messages,#admin-header,#admin-content"
-                                hx-trigger="click, keyup[key=='Escape'] from:body"
+                                hx-target="body"
                                 hx-indicator="#please-wait"
-                                data-bs-dismiss="modal"
                             {% endif %}
                     >
                         <i class="bi-x-circle-fill"></i> Fermer
@@ -70,5 +66,5 @@
     </div>
 </div>
 <script>
-    (new bootstrap.Modal(document.getElementById('admin-modal-container'))).show();
+    (new bootstrap.Modal(document.getElementById('modal-wrapper'))).show();
 </script>

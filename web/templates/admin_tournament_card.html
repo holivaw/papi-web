@@ -67,18 +67,12 @@
         </span>
         <span
                 class="me-2 text-nowrap"
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-html="true"
-                data-bs-custom-class="papi-web-tooltip-info"
-                data-bs-title="
-                    <i class='bi bi-info-circle-fill'></i>
-                    {% if tournament.chessevent %}
-                        La connexion à la plateforme ChessEvent est configurée ({{ tournament.chessevent.uniq_id }}).
-                    {% else %}
-                        Aucune connexion à la plateforme ChessEvent.
-                    {% endif %}
-                "
+                {{ tooltip_attributes(
+                    'info',
+                    'La connexion à la plateforme ChessEvent est configurée ({{ tournament.chessevent.uniq_id }}).'
+                    if tournament.chessevent else
+                    'Aucune connexion à la plateforme ChessEvent.',
+                    'top') }}
         >
             <i class="
                     {% if tournament.chessevent %}
@@ -130,10 +124,7 @@
                 class="btn btn-sm btn-primary p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='update', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait"
         >
             <i class="bi-pencil-fill"></i> Éditer
@@ -147,10 +138,7 @@
                 class="btn btn-sm btn-primary p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='clone', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait" >
             <i class="bi-copy"></i>
         </button>
@@ -160,10 +148,7 @@
                 class="btn btn-sm btn-danger p-1 text-nowrap"
                 hx-get="{{ url_for('admin-tournament-modal', action='delete', event_uniq_id=admin_event.uniq_id, tournament_id=tournament.id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait" >
             <i class="bi-trash-fill"></i>
         </button>

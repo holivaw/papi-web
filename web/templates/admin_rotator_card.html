@@ -54,10 +54,7 @@
                 class="btn btn-sm btn-primary p-1"
                 hx-get="{{ url_for('admin-rotator-modal', action='update', event_uniq_id=admin_event.uniq_id, rotator_id=rotator.id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait" >
             <i class="bi-pencil-fill"></i> Éditer
         </button>
@@ -69,10 +66,7 @@
         <button
                 class="btn btn-sm btn-primary p-1"
                 hx-post="{{ url_for('admin-rotator-clone', event_uniq_id=admin_event.uniq_id, rotator_id=rotator.id) }}"
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait" >
             <i class="bi-copy"></i>
         </button>
@@ -82,10 +76,7 @@
                 class="btn btn-sm btn-danger p-1"
                 hx-get="{{ url_for('admin-rotator-modal', action='delete', event_uniq_id=admin_event.uniq_id, rotator_id=rotator.id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait" >
             <i class="bi-trash-fill"></i>
         </button>

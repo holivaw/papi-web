@@ -12,10 +12,9 @@ from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import HTMXTemplate, ClientRedirect
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
-from litestar.response import Template
+from litestar.response import Template, Redirect
 from litestar.status_codes import HTTP_200_OK
 
-from common import format_timestamp_date
 from common.exception import PapiWebException
 from common.logger import get_logger
 from common.papi_web_config import PapiWebConfig
@@ -34,9 +33,9 @@ logger: Logger = get_logger()
 class EventAdminWebContext(AdminWebContext):
     def __init__(
             self, request: HTMXRequest,
-            data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ] | None,
             event_uniq_id: str | None,
             admin_event_tab: str | None,
+            data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ] | None,
     ):
         super().__init__(request, data=data, admin_tab=None)
         self.admin_event: Event | None = None
@@ -77,12 +76,11 @@ class EventAdminWebContext(AdminWebContext):
 
 class AbstractEventAdminController(AbstractIndexAdminController):
 
-    @staticmethod
-    def _admin_event_render(
-            request: HTMXRequest,
-            event_uniq_id: str,
-            admin_event_tab: str | None = None,
-    ) -> Template | ClientRedirect:
+    @classmethod
+    def _get_admin_event_render_context(
+            cls,
+            web_context: EventAdminWebContext,
+    ) -> dict[str, Any]:
         logging_levels: dict[int, dict[str, str]] = {
             logging.DEBUG: {
                 'name': 'DEBUG',
@@ -110,10 +108,6 @@ class AbstractEventAdminController(AbstractIndexAdminController):
                 'icon_class': 'bi-sign-stop-fill',
             },
         }
-        web_context: EventAdminWebContext = EventAdminWebContext(
-            request, data=None, event_uniq_id=event_uniq_id, admin_event_tab=admin_event_tab)
-        if web_context.error:
-            return web_context.error
         nav_tabs: dict[str, dict[str]] = {
             'config': {
                 'title': web_context.admin_event.uniq_id,
@@ -160,150 +154,35 @@ class AbstractEventAdminController(AbstractIndexAdminController):
         elif web_context.admin_event.warnings:
             nav_tabs['messages']['class'] = logging_levels[logging.WARNING]['class']
             nav_tabs['messages']['icon_class'] = logging_levels[logging.WARNING]['icon_class']
+        return web_context.template_context | {
+            'messages': Message.messages(web_context.request),
+            'logging_levels': logging_levels,
+            'nav_tabs': nav_tabs,
+            'admin_columns': SessionHandler.get_session_admin_columns(web_context.request),
+            'show_family_screens_on_screen_list': SessionHandler.get_session_show_family_screens_on_screen_list(
+                web_context.request),
+            'show_details_on_screen_list': SessionHandler.get_session_show_details_on_screen_list(
+                web_context.request),
+            'show_details_on_family_list': SessionHandler.get_session_show_details_on_family_list(
+                web_context.request),
+            'show_details_on_rotator_list': SessionHandler.get_session_show_details_on_rotator_list(
+                web_context.request),
+            'screen_types_on_screen_list': SessionHandler.get_session_screen_types_on_screen_list(
+                web_context.request),
+            'min_logging_level': SessionHandler.get_session_min_logging_level(web_context.request),
+        }
+
+    @classmethod
+    def _admin_event_render(
+            cls,
+            template_context: dict[str, Any],
+    ) -> Template:
         return HTMXTemplate(
             template_name="admin_event.html",
-            context=web_context.template_context | {
-                'messages': Message.messages(web_context.request),
-                'logging_levels': logging_levels,
-                'nav_tabs': nav_tabs,
-                'admin_columns': SessionHandler.get_session_admin_columns(web_context.request),
-                'show_family_screens_on_screen_list': SessionHandler.get_session_show_family_screens_on_screen_list(
-                    web_context.request),
-                'show_details_on_screen_list': SessionHandler.get_session_show_details_on_screen_list(
-                    web_context.request),
-                'show_details_on_family_list': SessionHandler.get_session_show_details_on_family_list(
-                    web_context.request),
-                'show_details_on_rotator_list': SessionHandler.get_session_show_details_on_rotator_list(
-                    web_context.request),
-                'screen_types_on_screen_list': SessionHandler.get_session_screen_types_on_screen_list(
-                    web_context.request),
-                'min_logging_level': SessionHandler.get_session_min_logging_level(web_context.request),
-            })
+            context=template_context)
 
 
 class EventAdminController(AbstractEventAdminController):
-
-    def _admin_event(
-            self, request: HTMXRequest,
-            event_uniq_id: str,
-            admin_event_tab: str | None,
-            admin_columns: int | None,
-            show_family_screens_on_screen_list: bool | None,
-            show_details_on_screen_list: bool | None,
-            show_details_on_family_list: bool | None,
-            show_details_on_rotator_list: bool | None,
-            show_boards_screens_on_screen_list: bool | None,
-            show_input_screens_on_screen_list: bool | None,
-            show_players_screens_on_screen_list: bool | None,
-            show_results_screens_on_screen_list: bool | None,
-            show_image_screens_on_screen_list: bool | None,
-            min_logging_level: int | None,
-    ) -> Template | ClientRedirect:
-        if admin_columns:
-            SessionHandler.set_session_admin_columns(request, admin_columns)
-        if show_family_screens_on_screen_list is not None:
-            SessionHandler.set_session_show_family_screens_on_screen_list(request, show_family_screens_on_screen_list)
-        if show_details_on_screen_list is not None:
-            SessionHandler.set_session_show_details_on_screen_list(request, show_details_on_screen_list)
-        if show_details_on_family_list is not None:
-            SessionHandler.set_session_show_details_on_family_list(request, show_details_on_family_list)
-        if show_details_on_rotator_list is not None:
-            SessionHandler.set_session_show_details_on_rotator_list(request, show_details_on_rotator_list)
-        screen_types: list[str] = SessionHandler.get_session_screen_types_on_screen_list(request)
-        for screen_type, param in {
-            'boards': show_boards_screens_on_screen_list,
-            'input': show_input_screens_on_screen_list,
-            'players': show_players_screens_on_screen_list,
-            'results': show_results_screens_on_screen_list,
-            'image': show_image_screens_on_screen_list,
-        }.items():
-            if param is not None:
-                if param:
-                    screen_types.append(screen_type)
-                else:
-                    screen_types.remove(screen_type)
-                SessionHandler.set_session_screen_types_on_screen_list(request, screen_types)
-                continue
-        if min_logging_level is not None:
-            try:
-                SessionHandler.set_session_min_logging_level(request, min_logging_level)
-            except ValueError:
-                return AbstractController.redirect_error(
-                    request, f'Le niveau de log [{min_logging_level}] est incorrect.')
-        return self._admin_event_render(request, event_uniq_id=event_uniq_id, admin_event_tab=admin_event_tab)
-
-    @get(
-        path='/admin/event/{event_uniq_id:str}',
-        name='admin-event',
-    )
-    async def htmx_admin_event(
-            self, request: HTMXRequest,
-            event_uniq_id: str,
-            admin_columns: int | None,
-            show_family_screens_on_screen_list: bool | None,
-            show_details_on_screen_list: bool | None,
-            show_details_on_family_list: bool | None,
-            show_details_on_rotator_list: bool | None,
-            show_boards_screens_on_screen_list: bool | None,
-            show_input_screens_on_screen_list: bool | None,
-            show_players_screens_on_screen_list: bool | None,
-            show_results_screens_on_screen_list: bool | None,
-            show_image_screens_on_screen_list: bool | None,
-            min_logging_level: int | None,
-    ) -> Template | ClientRedirect:
-        return self._admin_event(
-            request,
-            event_uniq_id=event_uniq_id,
-            admin_event_tab=None,
-            admin_columns=admin_columns,
-            show_family_screens_on_screen_list=show_family_screens_on_screen_list,
-            show_details_on_screen_list=show_details_on_screen_list,
-            show_details_on_family_list=show_details_on_family_list,
-            show_details_on_rotator_list=show_details_on_rotator_list,
-            show_boards_screens_on_screen_list=show_boards_screens_on_screen_list,
-            show_input_screens_on_screen_list=show_input_screens_on_screen_list,
-            show_players_screens_on_screen_list=show_players_screens_on_screen_list,
-            show_results_screens_on_screen_list=show_results_screens_on_screen_list,
-            show_image_screens_on_screen_list=show_image_screens_on_screen_list,
-            min_logging_level=min_logging_level,
-        )
-
-    @get(
-        path='/admin/event/{event_uniq_id:str}/{admin_event_tab:str}',
-        name='admin-event-tab',
-    )
-    async def htmx_admin_event_tab(
-            self, request: HTMXRequest,
-            event_uniq_id: str,
-            admin_event_tab: str,
-            admin_columns: int | None,
-            show_family_screens_on_screen_list: bool | None,
-            show_details_on_screen_list: bool | None,
-            show_details_on_family_list: bool | None,
-            show_details_on_rotator_list: bool | None,
-            show_boards_screens_on_screen_list: bool | None,
-            show_input_screens_on_screen_list: bool | None,
-            show_players_screens_on_screen_list: bool | None,
-            show_results_screens_on_screen_list: bool | None,
-            show_image_screens_on_screen_list: bool | None,
-            min_logging_level: int | None,
-    ) -> Template | ClientRedirect:
-        return self._admin_event(
-            request,
-            event_uniq_id=event_uniq_id,
-            admin_event_tab=admin_event_tab,
-            admin_columns=admin_columns,
-            show_family_screens_on_screen_list=show_family_screens_on_screen_list,
-            show_details_on_screen_list=show_details_on_screen_list,
-            show_details_on_family_list=show_details_on_family_list,
-            show_details_on_rotator_list=show_details_on_rotator_list,
-            show_boards_screens_on_screen_list=show_boards_screens_on_screen_list,
-            show_input_screens_on_screen_list=show_input_screens_on_screen_list,
-            show_players_screens_on_screen_list=show_players_screens_on_screen_list,
-            show_results_screens_on_screen_list=show_results_screens_on_screen_list,
-            show_image_screens_on_screen_list=show_image_screens_on_screen_list,
-            min_logging_level=min_logging_level,
-        )
 
     @staticmethod
     def _admin_validate_event_update_data(
@@ -328,7 +207,7 @@ class EventAdminController(AbstractEventAdminController):
             else:
                 event_uniq_ids: list[str] = EventLoader.get(request=web_context.request, lazy_load=True).event_uniq_ids
                 match action:
-                    case 'create' | 'clone':
+                    case 'clone':
                         if uniq_id in event_uniq_ids:
                             errors['uniq_id'] = f'L\'évènement [{uniq_id}] existe déjà.'
                     case 'update':
@@ -340,7 +219,7 @@ class EventAdminController(AbstractEventAdminController):
         start: float | None = None
         stop: float | None = None
         match action:
-            case 'create' | 'clone' | 'update':
+            case 'clone' | 'update':
                 if not name:
                     errors['name'] = 'Veuillez entrer le nom de l\'évènement.'
                 start_str: str | None = WebContext.form_data_to_str(data, 'start')
@@ -433,7 +312,7 @@ class EventAdminController(AbstractEventAdminController):
                     web_context.admin_event.stored_event.allow_results_deletion_on_input_screens
                 timer_colors = web_context.admin_event.stored_event.timer_colors
                 timer_delays = web_context.admin_event.stored_event.timer_delays
-            case 'create' | 'delete':
+            case 'delete':
                 pass
             case _:
                 raise ValueError(f'action=[{action}]')
@@ -497,145 +376,265 @@ class EventAdminController(AbstractEventAdminController):
                 file_nodes.append(node)
         return file_nodes + dir_nodes
 
-    def _admin_event_modal(
-            self, request: HTMXRequest,
-            action: str,
-            event_uniq_id: str | None,
+    @classmethod
+    def _admin_event_config_render(
+            cls,
+            request: HTMXRequest,
+            event_uniq_id: str,
+            admin_event_tab: str | None = None,
+            modal: str | None = None,
+            action: str | None = None,
             data: dict[str, str] | None = None,
             errors: dict[str, str] | None = None,
     ) -> Template | ClientRedirect:
         web_context: EventAdminWebContext = EventAdminWebContext(
-            request, data=data, event_uniq_id=event_uniq_id, admin_event_tab=None)
+            request, event_uniq_id=event_uniq_id, admin_event_tab=admin_event_tab, data=data)
         if web_context.error:
             return web_context.error
-        if data is None:
-            data: dict[str, str] = {}
-            match action:
-                case 'update':
-                    data['uniq_id'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.uniq_id)
-                case 'create' | 'clone':
-                    data['uniq_id'] = ''
-                case 'delete':
-                    pass
-                case _:
-                    raise ValueError(f'action=[{action}]')
-            match action:
-                case 'update' | 'clone':
-                    data['uniq_id'] = '' if action == 'clone' else WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.uniq_id)
-                    data['name'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.name)
-                    data['public'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.public)
-                    data['start'] = WebContext.value_to_datetime_form_data(web_context.admin_event.stored_event.start)
-                    data['stop'] = WebContext.value_to_datetime_form_data(web_context.admin_event.stored_event.stop)
-                    data['background_image'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.background_image)
-                    data['background_color'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.background_color)
-                    data['background_color_checkbox'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.background_color is None)
-                    data['path'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.path)
-                    data['update_password'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.update_password)
-                    data['record_illegal_moves'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.record_illegal_moves)
-                    data['allow_results_deletion_on_input_screens'] = WebContext.value_to_form_data(
-                        web_context.admin_event.stored_event.allow_results_deletion_on_input_screens)
-                    for i in range(1, 4):
-                        data[f'color_{i}'] = WebContext.value_to_form_data(web_context.admin_event.timer_colors[i])
-                        data[f'color_{i}_checkbox'] = WebContext.value_to_form_data(
-                            web_context.admin_event.stored_event.timer_colors[i] is None)
-                        data[f'delay_{i}'] = WebContext.value_to_form_data(
-                            web_context.admin_event.stored_event.timer_delays[i])
-                case 'create':
-                    data['public'] = WebContext.value_to_form_data(False)
-                    today_str: str = format_timestamp_date()
-                    start = time.mktime(datetime.strptime(
-                        f'{today_str} 00:00', '%Y-%m-%d %H:%M').timetuple())
-                    stop = time.mktime(datetime.strptime(
-                        f'{today_str} 23:59', '%Y-%m-%d %H:%M').timetuple())
-                    data['start'] = WebContext.value_to_datetime_form_data(start)
-                    data['stop'] = WebContext.value_to_datetime_form_data(stop)
-                case 'delete':
-                    pass
-                case _:
-                    raise ValueError(f'action=[{action}]')
-            stored_event: StoredEvent = self._admin_validate_event_update_data(action, web_context, data)
-            errors = stored_event.errors
-        if errors is None:
-            errors = {}
-        allow_results_deletion_on_input_screens_options: dict[str, str] = {
-            '': '',
-            'off': 'Non autorisée',
-            'on': 'Autorisée',
-        }
-        default_option = PapiWebConfig.default_allow_results_deletion_on_input_screens
-        allow_results_deletion_on_input_screens_options[''] = \
-            (f'Par défaut '
-             f'({allow_results_deletion_on_input_screens_options["on" if default_option else "off"]})')
-        return HTMXTemplate(
-            template_name='admin_event_modal.html',
-            re_swap='innerHTML',
-            re_target='#admin-modal-container',
-            context=web_context.template_context | {
-                'action': action,
-                'data': data,
-                'errors': errors,
-                'record_illegal_moves_options': self._get_record_illegal_moves_options(
-                    PapiWebConfig.default_record_illegal_moves_number),
-                'allow_results_deletion_on_input_screens_options': allow_results_deletion_on_input_screens_options,
-                'timer_color_texts': self._get_timer_color_texts(PapiWebConfig.default_timer_delays),
-                'background_images_jstree_data': self.background_images_jstree_data(
-                    data['background_image']) if action == 'update' else {}
-            })
+        template_context: dict[str, Any] = cls._get_admin_event_render_context(web_context)
+        match modal:
+            case None:
+                pass
+            case 'event':
+                if data is None:
+                    data: dict[str, str] = {}
+                    match action:
+                        case 'update':
+                            data['uniq_id'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.uniq_id)
+                        case 'clone':
+                            data['uniq_id'] = ''
+                        case 'delete':
+                            pass
+                        case _:
+                            raise ValueError(f'action=[{action}]')
+                    match action:
+                        case 'update' | 'clone':
+                            data['uniq_id'] = '' if action == 'clone' else WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.uniq_id)
+                            data['name'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.name)
+                            data['public'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.public)
+                            data['start'] = WebContext.value_to_datetime_form_data(
+                                web_context.admin_event.stored_event.start)
+                            data['stop'] = WebContext.value_to_datetime_form_data(
+                                web_context.admin_event.stored_event.stop)
+                            data['background_image'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.background_image)
+                            data['background_color'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.background_color)
+                            data['background_color_checkbox'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.background_color is None)
+                            data['path'] = WebContext.value_to_form_data(web_context.admin_event.stored_event.path)
+                            data['update_password'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.update_password)
+                            data['record_illegal_moves'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.record_illegal_moves)
+                            data['allow_results_deletion_on_input_screens'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.allow_results_deletion_on_input_screens)
+                            for i in range(1, 4):
+                                data[f'color_{i}'] = WebContext.value_to_form_data(
+                                    web_context.admin_event.timer_colors[i])
+                                data[f'color_{i}_checkbox'] = WebContext.value_to_form_data(
+                                    web_context.admin_event.stored_event.timer_colors[i] is None)
+                                data[f'delay_{i}'] = WebContext.value_to_form_data(
+                                    web_context.admin_event.stored_event.timer_delays[i])
+                        case 'delete':
+                            pass
+                        case _:
+                            raise ValueError(f'action=[{action}]')
+                    stored_event: StoredEvent = cls._admin_validate_event_update_data(action, web_context, data)
+                    errors = stored_event.errors
+                if errors is None:
+                    errors = {}
+                allow_results_deletion_on_input_screens_options: dict[str, str] = {
+                    '': '',
+                    'off': 'Non autorisée',
+                    'on': 'Autorisée',
+                }
+                default_option = PapiWebConfig.default_allow_results_deletion_on_input_screens
+                allow_results_deletion_on_input_screens_options[''] = \
+                    (f'Par défaut '
+                     f'({allow_results_deletion_on_input_screens_options["on" if default_option else "off"]})')
+                template_context |= {
+                    'record_illegal_moves_options': cls._get_record_illegal_moves_options(
+                        PapiWebConfig.default_record_illegal_moves_number),
+                    'allow_results_deletion_on_input_screens_options': allow_results_deletion_on_input_screens_options,
+                    'timer_color_texts': cls._get_timer_color_texts(PapiWebConfig.default_timer_delays),
+                    'background_images_jstree_data': cls.background_images_jstree_data(
+                        data['background_image']) if action == 'update' else {},
+                    'modal': 'event',
+                    'action': action,
+                    'data': data,
+                    'errors': errors,
+                }
+            case _:
+                raise ValueError(f'modal=[{modal}]')
+        return cls._admin_event_render(template_context)
+
+    def _admin_event(
+            self, request: HTMXRequest,
+            event_uniq_id: str,
+            admin_event_tab: str | None = None,
+            admin_columns: int | None = None,
+            show_family_screens_on_screen_list: bool | None = None,
+            show_details_on_screen_list: bool | None = None,
+            show_details_on_family_list: bool | None = None,
+            show_details_on_rotator_list: bool | None = None,
+            show_boards_screens_on_screen_list: bool | None = None,
+            show_input_screens_on_screen_list: bool | None = None,
+            show_players_screens_on_screen_list: bool | None = None,
+            show_results_screens_on_screen_list: bool | None = None,
+            show_image_screens_on_screen_list: bool | None = None,
+            min_logging_level: int | None = None,
+            modal: str | None = None,
+            action: str | None = None,
+            data: dict[str, str] | None = None,
+            errors: dict[str, str] | None = None,
+    ) -> Template | ClientRedirect:
+        if admin_columns:
+            SessionHandler.set_session_admin_columns(request, admin_columns)
+        if show_family_screens_on_screen_list is not None:
+            SessionHandler.set_session_show_family_screens_on_screen_list(request, show_family_screens_on_screen_list)
+        if show_details_on_screen_list is not None:
+            SessionHandler.set_session_show_details_on_screen_list(request, show_details_on_screen_list)
+        if show_details_on_family_list is not None:
+            SessionHandler.set_session_show_details_on_family_list(request, show_details_on_family_list)
+        if show_details_on_rotator_list is not None:
+            SessionHandler.set_session_show_details_on_rotator_list(request, show_details_on_rotator_list)
+        screen_types: list[str] = SessionHandler.get_session_screen_types_on_screen_list(request)
+        for screen_type, param in {
+            'boards': show_boards_screens_on_screen_list,
+            'input': show_input_screens_on_screen_list,
+            'players': show_players_screens_on_screen_list,
+            'results': show_results_screens_on_screen_list,
+            'image': show_image_screens_on_screen_list,
+        }.items():
+            if param is not None:
+                if param:
+                    screen_types.append(screen_type)
+                else:
+                    screen_types.remove(screen_type)
+                SessionHandler.set_session_screen_types_on_screen_list(request, screen_types)
+                continue
+        if min_logging_level is not None:
+            try:
+                SessionHandler.set_session_min_logging_level(request, min_logging_level)
+            except ValueError:
+                return AbstractController.redirect_error(
+                    request, f'Le niveau de log [{min_logging_level}] est incorrect.')
+        return self._admin_event_config_render(
+            request, admin_event_tab=admin_event_tab, event_uniq_id=event_uniq_id, modal=modal, action=action,
+            data=data, errors=errors)
 
     @get(
-        path='/admin/event-modal/create',
-        name='admin-event-modal-create'
+        path='/admin/event/{event_uniq_id:str}',
+        name='admin-event',
+        cache=1,
     )
-    async def htmx_admin_event_create_modal(
+    async def htmx_admin_event(
             self, request: HTMXRequest,
+            event_uniq_id: str,
+            admin_columns: int | None,
+            show_family_screens_on_screen_list: bool | None,
+            show_details_on_screen_list: bool | None,
+            show_details_on_family_list: bool | None,
+            show_details_on_rotator_list: bool | None,
+            show_boards_screens_on_screen_list: bool | None,
+            show_input_screens_on_screen_list: bool | None,
+            show_players_screens_on_screen_list: bool | None,
+            show_results_screens_on_screen_list: bool | None,
+            show_image_screens_on_screen_list: bool | None,
+            min_logging_level: int | None,
     ) -> Template | ClientRedirect:
-        return self._admin_event_modal(request, action='create', event_uniq_id=None, )
+        return self._admin_event(
+            request,
+            event_uniq_id=event_uniq_id,
+            admin_event_tab=None,
+            admin_columns=admin_columns,
+            show_family_screens_on_screen_list=show_family_screens_on_screen_list,
+            show_details_on_screen_list=show_details_on_screen_list,
+            show_details_on_family_list=show_details_on_family_list,
+            show_details_on_rotator_list=show_details_on_rotator_list,
+            show_boards_screens_on_screen_list=show_boards_screens_on_screen_list,
+            show_input_screens_on_screen_list=show_input_screens_on_screen_list,
+            show_players_screens_on_screen_list=show_players_screens_on_screen_list,
+            show_results_screens_on_screen_list=show_results_screens_on_screen_list,
+            show_image_screens_on_screen_list=show_image_screens_on_screen_list,
+            min_logging_level=min_logging_level,
+        )
+
+    @get(
+        path='/admin/event/{event_uniq_id:str}/{admin_event_tab:str}',
+        name='admin-event-tab',
+        cache=1,
+    )
+    async def htmx_admin_event_tab(
+            self, request: HTMXRequest,
+            event_uniq_id: str,
+            admin_event_tab: str,
+            admin_columns: int | None,
+            show_family_screens_on_screen_list: bool | None,
+            show_details_on_screen_list: bool | None,
+            show_details_on_family_list: bool | None,
+            show_details_on_rotator_list: bool | None,
+            show_boards_screens_on_screen_list: bool | None,
+            show_input_screens_on_screen_list: bool | None,
+            show_players_screens_on_screen_list: bool | None,
+            show_results_screens_on_screen_list: bool | None,
+            show_image_screens_on_screen_list: bool | None,
+            min_logging_level: int | None,
+    ) -> Template | ClientRedirect:
+        return self._admin_event(
+            request,
+            event_uniq_id=event_uniq_id,
+            admin_event_tab=admin_event_tab,
+            admin_columns=admin_columns,
+            show_family_screens_on_screen_list=show_family_screens_on_screen_list,
+            show_details_on_screen_list=show_details_on_screen_list,
+            show_details_on_family_list=show_details_on_family_list,
+            show_details_on_rotator_list=show_details_on_rotator_list,
+            show_boards_screens_on_screen_list=show_boards_screens_on_screen_list,
+            show_input_screens_on_screen_list=show_input_screens_on_screen_list,
+            show_players_screens_on_screen_list=show_players_screens_on_screen_list,
+            show_results_screens_on_screen_list=show_results_screens_on_screen_list,
+            show_image_screens_on_screen_list=show_image_screens_on_screen_list,
+            min_logging_level=min_logging_level,
+        )
 
     @get(
         path='/admin/event-modal/{action:str}/{event_uniq_id:str}',
-        name='admin-event-modal'
+        name='admin-event-modal',
+        cache=1,
     )
     async def htmx_admin_event_modal(
             self, request: HTMXRequest,
             action: str,
             event_uniq_id: str,
     ) -> Template | ClientRedirect:
-        return self._admin_event_modal(request, action=action, event_uniq_id=event_uniq_id, )
+        return self._admin_event(request, modal='event', action=action, event_uniq_id=event_uniq_id, )
 
     def _admin_event_update(
             self, request: HTMXRequest,
             data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ],
             action: str,
             event_uniq_id: str | None,
-    ) -> Template | ClientRedirect:
+    ) -> Template | ClientRedirect | Redirect:
         match action:
-            case 'create' | 'clone' | 'update' | 'delete':
+            case 'clone' | 'update' | 'delete':
                 web_context: EventAdminWebContext = EventAdminWebContext(
-                    request, data=data, event_uniq_id=event_uniq_id, admin_event_tab=None)
+                    request, event_uniq_id=event_uniq_id, admin_event_tab=None, data=data)
             case _:
                 raise ValueError(f'action=[{action}]')
         if web_context.error:
             return web_context.error
         stored_event: StoredEvent = self._admin_validate_event_update_data(action, web_context, data)
         if stored_event.errors:
-            return self._admin_event_modal(
-                request, action=action, event_uniq_id=event_uniq_id, data=data, errors=stored_event.errors)
+            return self._admin_event_config_render(
+                request, event_uniq_id=event_uniq_id, modal='event', action=action, data=data,
+                errors=stored_event.errors)
         uniq_id: str = stored_event.uniq_id
         event_loader = EventLoader.get(request, lazy_load=True)
         match action:
-            case 'create':
-                EventDatabase(uniq_id).create()
-                with EventDatabase(uniq_id, write=True) as event_database:
-                    event_database.update_stored_event(stored_event)
-                    event_database.commit()
-                Message.success(request, f'L\'évènement [{uniq_id}] a été créé.')
-                return self._admin_event_render(request, event_uniq_id=uniq_id)
             case 'update':
                 rename: bool = uniq_id != web_context.admin_event.uniq_id
                 if rename:
@@ -655,7 +654,7 @@ class EventAdminController(AbstractEventAdminController):
                 else:
                     Message.success(request, f'L\'évènement [{uniq_id}] a été modifié.')
                 event_loader.clear_cache(uniq_id)
-                return self._admin_event_render(request, event_uniq_id=uniq_id)
+                return self._admin_event_config_render(request, event_uniq_id=uniq_id)
             case 'clone':
                 EventDatabase(web_context.admin_event.uniq_id).clone(new_uniq_id=uniq_id)
                 with EventDatabase(uniq_id, write=True) as event_database:
@@ -664,7 +663,7 @@ class EventAdminController(AbstractEventAdminController):
                 Message.success(
                     request, f'L\'évènement [{web_context.admin_event.uniq_id}] a été dupliqué ([{uniq_id}]).')
                 event_loader.clear_cache(uniq_id)
-                return self._admin_event_render(request, event_uniq_id=uniq_id)
+                return self._admin_event_config_render(request, event_uniq_id=uniq_id)
             case 'delete':
                 try:
                     arch = EventDatabase(web_context.admin_event.uniq_id).delete()
@@ -675,19 +674,9 @@ class EventAdminController(AbstractEventAdminController):
                 Message.success(
                     request, f'L\'évènement [{web_context.admin_event.uniq_id}] a été supprimé, la base '
                              f'de données a été archivée ({arch}).')
-                return self._admin_render(request, admin_tab=None)
+                return self._admin_render(request)
             case _:
                 raise ValueError(f'action=[{action}]')
-
-    @post(
-        path='/admin/event-create',
-        name='admin-event-create',
-    )
-    async def htmx_admin_event_create(
-            self, request: HTMXRequest,
-            data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ],
-    ) -> Template | ClientRedirect:
-        return self._admin_event_update(request, data=data, action='create', event_uniq_id=None)
 
     @post(
         path='/admin/event-clone/{event_uniq_id:str}',

@@ -12,7 +12,7 @@
                 class="btn btn-primary text-nowrap me-2"
                 hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab='timers') }}"
                 preload
-                hx-swap="multi:#admin-header,#admin-content"
+                hx-target="body"
                 hx-indicator="#please-wait"
         >
             <i class="bi-arrow-clockwise"></i>
@@ -23,10 +23,7 @@
                 class="btn btn-primary text-nowrap"
                 hx-get="{{ url_for('admin-timer-create-modal', event_uniq_id=admin_event.uniq_id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait"
         >
             <i class="bi-plus-square-fill"></i> Créer un chronomètre

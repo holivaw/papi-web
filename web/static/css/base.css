@@ -17,6 +17,7 @@ body {
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 100% auto;
+    z-index: 2000;
 }
 #messages {
     z-index: 1;
@@ -32,10 +33,6 @@ body {
 }
 .w-1 {
     width: 1%; !important;
-}
-/* https://stackoverflow.com/questions/39588698/bootstrap-multiple-modals-modal-backdrop-issue */
-.modal-backdrop + .modal-backdrop {
-  display: none;
 }
 .papi-web-tooltip-info, .papi-web-tooltip-warning, .papi-web-tooltip-error {
   --bs-tooltip-bg: #d0d000;

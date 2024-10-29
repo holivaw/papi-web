@@ -9,10 +9,7 @@
                 class="btn btn-primary text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='update', event_uniq_id=admin_event.uniq_id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait">
             <i class="bi-pencil-fill"></i> Éditer
         </button>
@@ -20,10 +17,7 @@
                 class="btn btn-primary text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='clone', event_uniq_id=admin_event.uniq_id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait">
             <i class="bi-copy"></i> Dupliquer
         </button>
@@ -31,10 +25,7 @@
                 class="btn btn-danger text-nowrap ms-1"
                 hx-get="{{ url_for('admin-event-modal', action='delete', event_uniq_id=admin_event.uniq_id) }}"
                 preload
-                hx-target="#admin-modal-container"
-                hx-swap="innerHTML"
-                data-bs-toggle="modal"
-                data-bs-target="#admin-modal-container"
+                hx-target="body"
                 hx-indicator="#please-wait">
             <i class="bi-trash-fill"></i> Supprimer
         </button>

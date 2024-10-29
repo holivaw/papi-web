@@ -4,7 +4,7 @@ from typing import Annotated, Any
 
 from litestar import post, get, delete, patch
 from litestar.contrib.htmx.request import HTMXRequest
-from litestar.contrib.htmx.response import HTMXTemplate, ClientRedirect
+from litestar.contrib.htmx.response import ClientRedirect
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
 from litestar.response import Template
@@ -26,11 +26,12 @@ logger: Logger = get_logger()
 class TournamentAdminWebContext(EventAdminWebContext):
     def __init__(
             self, request: HTMXRequest,
-            data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ] | None,
             event_uniq_id: str,
+            admin_event_tab: str | None,
             tournament_id: int | None,
+            data: Annotated[dict[str, str], Body(media_type=RequestEncodingType.URL_ENCODED), ] | None,
     ):
-        super().__init__(request, data=data, event_uniq_id=event_uniq_id, admin_event_tab=None)
+        super().__init__(request, event_uniq_id=event_uniq_id, admin_event_tab=admin_event_tab, data=data)
         self.admin_tournament: Tournament | None = None
         if self.error:
             return
@@ -159,103 +160,116 @@ class TournamentAdminController(AbstractEventAdminController):
                                            f'/{chessevent.shadowed_password}/{chessevent.event_id})')
         return options
 
-    def _admin_tournament_modal(
-            self, request: HTMXRequest,
-            action: str,
+    @classmethod
+    def _admin_event_tournaments_render(
+            cls,
+            request: HTMXRequest,
             event_uniq_id: str,
-            tournament_id: int | None,
+            modal: str | None = None,
+            action: str | None = None,
+            tournament_id: int | None = None,
             data: dict[str, str] | None = None,
             errors: dict[str, str] | None = None,
     ) -> Template | ClientRedirect:
         web_context: TournamentAdminWebContext = TournamentAdminWebContext(
-            request, data=None, event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+            request, event_uniq_id=event_uniq_id, admin_event_tab='tournaments', tournament_id=tournament_id, data=data)
         if web_context.error:
             return web_context.error
-        if data is None:
-            data = {}
-            match action:
-                case 'update':
-                    data['uniq_id'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.uniq_id)
-                case 'create' | 'clone':
-                    data['uniq_id'] = ''
-                case 'delete':
-                    pass
-                case _:
-                    raise ValueError(f'action=[{action}]')
-            match action:
-                case 'update' | 'clone':
-                    data['name'] = WebContext.value_to_form_data(web_context.admin_tournament.stored_tournament.name)
-                    data['path'] = WebContext.value_to_form_data(web_context.admin_tournament.stored_tournament.path)
-                    data['filename'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.filename)
-                    data['ffe_id'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.ffe_id)
-                    data['ffe_password'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.ffe_password)
-                case 'create':
-                    data['name'] = ''
-                    data['path'] = ''
-                    data['filename'] = ''
-                    data['ffe_id'] = ''
-                    data['ffe_password'] = ''
-                case 'delete':
-                    pass
-                case _:
-                    raise ValueError(f'action=[{action}]')
-            match action:
-                case 'update':
-                    data['time_control_initial_time'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.time_control_initial_time)
-                    data['time_control_increment'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.time_control_increment)
-                    data['time_control_handicap_penalty_value'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.time_control_handicap_penalty_value)
-                    data['time_control_handicap_penalty_step'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.time_control_handicap_penalty_step)
-                    data['time_control_handicap_min_time'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.time_control_handicap_min_time)
-                    data['chessevent_id'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.chessevent_id)
-                    data['chessevent_tournament_name'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.chessevent_tournament_name)
-                    data['record_illegal_moves'] = WebContext.value_to_form_data(
-                        web_context.admin_tournament.stored_tournament.record_illegal_moves)
-                case 'delete' | 'clone' | 'create':
-                    pass
-                case _:
-                    raise ValueError(f'action=[{action}]')
-            stored_tournament: StoredTournament = self._admin_validate_tournament_update_data(
-                action, web_context, data)
-            errors = stored_tournament.errors
-        if errors is None:
-            errors = {}
-        return HTMXTemplate(
-            template_name='admin_tournament_modal.html',
-            re_swap='innerHTML',
-            re_target='#admin-modal-container',
-            context=web_context.template_context | {
-                'action': action,
-                'chessevent_options': self._get_chessevent_options(web_context.admin_event),
-                'data': data,
-                'record_illegal_moves_options': self._get_record_illegal_moves_options(
-                    web_context.admin_event.record_illegal_moves),
-                'errors': errors,
-            })
+        template_context: dict[str, Any] = cls._get_admin_event_render_context(web_context)
+        match modal:
+            case None:
+                pass
+            case 'tournament':
+                if data is None:
+                    data = {}
+                    match action:
+                        case 'update':
+                            data['uniq_id'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.uniq_id)
+                        case 'create' | 'clone':
+                            data['uniq_id'] = ''
+                        case 'delete':
+                            pass
+                        case _:
+                            raise ValueError(f'action=[{action}]')
+                    match action:
+                        case 'update' | 'clone':
+                            data['name'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.name)
+                            data['path'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.path)
+                            data['filename'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.filename)
+                            data['ffe_id'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.ffe_id)
+                            data['ffe_password'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.ffe_password)
+                        case 'create':
+                            data['name'] = ''
+                            data['path'] = ''
+                            data['filename'] = ''
+                            data['ffe_id'] = ''
+                            data['ffe_password'] = ''
+                        case 'delete':
+                            pass
+                        case _:
+                            raise ValueError(f'action=[{action}]')
+                    match action:
+                        case 'update':
+                            data['time_control_initial_time'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.time_control_initial_time)
+                            data['time_control_increment'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.time_control_increment)
+                            data['time_control_handicap_penalty_value'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.time_control_handicap_penalty_value)
+                            data['time_control_handicap_penalty_step'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.time_control_handicap_penalty_step)
+                            data['time_control_handicap_min_time'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.time_control_handicap_min_time)
+                            data['chessevent_id'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.chessevent_id)
+                            data['chessevent_tournament_name'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.chessevent_tournament_name)
+                            data['record_illegal_moves'] = WebContext.value_to_form_data(
+                                web_context.admin_tournament.stored_tournament.record_illegal_moves)
+                        case 'delete' | 'clone' | 'create':
+                            pass
+                        case _:
+                            raise ValueError(f'action=[{action}]')
+                    stored_tournament: StoredTournament = cls._admin_validate_tournament_update_data(
+                        action, web_context, data)
+                    errors = stored_tournament.errors
+                if errors is None:
+                    errors = {}
+                template_context |= {
+                    'chessevent_options': cls._get_chessevent_options(web_context.admin_event),
+                    'record_illegal_moves_options': cls._get_record_illegal_moves_options(
+                        web_context.admin_event.record_illegal_moves),
+                    'modal': modal,
+                    'action': action,
+                    'data': data,
+                    'errors': errors,
+                }
+            case _:
+                raise ValueError(f'modal=[{modal}]')
+        return cls._admin_event_render(template_context)
 
     @get(
         path='/admin/tournament-modal/create/{event_uniq_id:str}',
-        name='admin-tournament-create-modal'
+        name='admin-tournament-create-modal',
+        cache=1,
     )
     async def htmx_admin_tournament_create_modal(
             self, request: HTMXRequest,
             event_uniq_id: str,
     ) -> Template | ClientRedirect:
-        return self._admin_tournament_modal(request, action='create', event_uniq_id=event_uniq_id, tournament_id=None)
+        return self._admin_event_tournaments_render(
+            request, event_uniq_id=event_uniq_id, modal='tournament', action='create', tournament_id=None)
 
     @get(
         path='/admin/tournament-modal/{action:str}/{event_uniq_id:str}/{tournament_id:int}',
-        name='admin-tournament-modal'
+        name='admin-tournament-modal',
+        cache=1,
     )
     async def htmx_admin_tournament_modal(
             self, request: HTMXRequest,
@@ -263,8 +277,8 @@ class TournamentAdminController(AbstractEventAdminController):
             event_uniq_id: str,
             tournament_id: int | None,
     ) -> Template | ClientRedirect:
-        return self._admin_tournament_modal(
-            request, action=action, event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+        return self._admin_event_tournaments_render(
+            request, event_uniq_id=event_uniq_id, modal='tournament', action=action, tournament_id=tournament_id)
 
     def _admin_tournament_update(
             self, request: HTMXRequest,
@@ -276,7 +290,8 @@ class TournamentAdminController(AbstractEventAdminController):
         match action:
             case 'update' | 'delete' | 'clone' | 'create':
                 web_context: TournamentAdminWebContext = TournamentAdminWebContext(
-                    request, data=data, event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+                    request, event_uniq_id=event_uniq_id, admin_event_tab='tournaments', tournament_id=tournament_id,
+                    data=data)
             case _:
                 raise ValueError(f'action=[{action}]')
         if web_context.error:
@@ -284,9 +299,9 @@ class TournamentAdminController(AbstractEventAdminController):
         stored_tournament: StoredTournament = self._admin_validate_tournament_update_data(
             action, web_context, data)
         if stored_tournament.errors:
-            return self._admin_tournament_modal(
-                request, action=action, event_uniq_id=event_uniq_id, tournament_id=tournament_id, data=data,
-                errors=stored_tournament.errors)
+            return self._admin_event_tournaments_render(
+                request, event_uniq_id=event_uniq_id, modal='tournament', action=action, tournament_id=tournament_id,
+                data=data, errors=stored_tournament.errors)
         event_loader: EventLoader = EventLoader.get(request=request, lazy_load=False)
         with (EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database):
             match action:
@@ -295,22 +310,21 @@ class TournamentAdminController(AbstractEventAdminController):
                     event_database.commit()
                     Message.success(request, f'Le tournoi [{stored_tournament.uniq_id}] a été créé.')
                     event_loader.clear_cache(event_uniq_id)
-                    return self._admin_tournament_modal(
-                        request, action='update', event_uniq_id=event_uniq_id, tournament_id=stored_tournament.id)
+                    return self._admin_event_tournaments_render(
+                        request, event_uniq_id=event_uniq_id, modal='tournament', action='update',
+                        tournament_id=stored_tournament.id)
                 case 'update':
                     stored_tournament = event_database.update_stored_tournament(stored_tournament)
                     event_database.commit()
                     Message.success(request, f'Le tournoi [{stored_tournament.uniq_id}] a été modifié.')
                     event_loader.clear_cache(event_uniq_id)
-                    return self._admin_event_render(
-                        request, event_uniq_id=event_uniq_id, admin_event_tab='tournaments')
+                    return self._admin_event_tournaments_render(request, event_uniq_id=event_uniq_id)
                 case 'delete':
                     event_database.delete_stored_tournament(web_context.admin_tournament.id)
                     event_database.commit()
                     Message.success(request, f'Le tournoi [{web_context.admin_tournament.uniq_id}] a été supprimé.')
                     event_loader.clear_cache(event_uniq_id)
-                    return self._admin_event_render(
-                        request, event_uniq_id=event_uniq_id, admin_event_tab='tournaments')
+                    return self._admin_event_tournaments_render(request, event_uniq_id=event_uniq_id)
                 case 'clone':
                     stored_tournament = event_database.clone_stored_tournament(
                         web_context.admin_tournament.id, stored_tournament.uniq_id, stored_tournament.name,
@@ -321,8 +335,9 @@ class TournamentAdminController(AbstractEventAdminController):
                         request, f'Le tournoi [{web_context.admin_tournament.uniq_id}] a été dupliqué '
                                  f'([{stored_tournament.uniq_id}]).')
                     event_loader.clear_cache(event_uniq_id)
-                    return self._admin_tournament_modal(
-                        request, action='update', event_uniq_id=event_uniq_id, tournament_id=stored_tournament.id)
+                    return self._admin_event_tournaments_render(
+                        request, event_uniq_id=event_uniq_id, modal='tournament', action='update',
+                        tournament_id=stored_tournament.id)
                 case _:
                     raise ValueError(f'action=[{action}]')
 
@@ -336,7 +351,7 @@ class TournamentAdminController(AbstractEventAdminController):
             event_uniq_id: str,
     ) -> Template | ClientRedirect:
         return self._admin_tournament_update(
-            request, data=data, action='create', event_uniq_id=event_uniq_id, tournament_id=None)
+            request, event_uniq_id=event_uniq_id, action='create', tournament_id=None, data=data)
 
     @post(
         path='/admin/tournament-clone/{event_uniq_id:str}/{tournament_id:int}',
@@ -349,7 +364,7 @@ class TournamentAdminController(AbstractEventAdminController):
             tournament_id: int | None,
     ) -> Template | ClientRedirect:
         return self._admin_tournament_update(
-            request, data=data, action='clone', event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+            request, event_uniq_id=event_uniq_id, action='clone', tournament_id=tournament_id, data=data)
 
     @patch(
         path='/admin/tournament-update/{event_uniq_id:str}/{tournament_id:int}',
@@ -362,7 +377,7 @@ class TournamentAdminController(AbstractEventAdminController):
             tournament_id: int | None,
     ) -> Template | ClientRedirect:
         return self._admin_tournament_update(
-            request, data=data, action='update', event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+            request, event_uniq_id=event_uniq_id, action='update', tournament_id=tournament_id, data=data)
 
     @delete(
         path='/admin/tournament-delete/{event_uniq_id:str}/{tournament_id:int}',
@@ -376,4 +391,4 @@ class TournamentAdminController(AbstractEventAdminController):
             tournament_id: int | None,
     ) -> Template | ClientRedirect:
         return self._admin_tournament_update(
-            request, data=data, action='delete', event_uniq_id=event_uniq_id, tournament_id=tournament_id)
+            request, event_uniq_id=event_uniq_id, action='delete', tournament_id=tournament_id, data=data)

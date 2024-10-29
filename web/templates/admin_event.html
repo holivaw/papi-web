@@ -12,8 +12,7 @@
             class="btn btn-link link-dark fs-5 fw-bold px-1 py-0"
             hx-get="{{ url_for('admin-tab', admin_tab=target_tab) }}"
             preload
-            hx-swap="multi:#admin-header,#admin-content"
-            hx-indicator="#please-wait"
+            hx-target="body"
             hx-indicator="#please-wait"
     >
         <i class="bi-arrow-left-circle-fill"></i>
@@ -28,7 +27,7 @@
                     id="nav-{{ nav_id }}-tab"
                     hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab=nav_id) }}"
                     preload
-                    hx-swap="multi:#admin-header,#admin-content"
+                    hx-target="body"
                     data-bs-toggle="tab"
                     data-bs-target="#nav-{{ nav_tab.name }}"
                     type="button"
@@ -66,3 +65,9 @@
         {% endwith %}
     {% endfor %}
 {% endblock admin_content %}
+
+{% block admin_modal %}
+    {% if modal %}
+        {% include 'admin_' ~ modal ~ '_modal.html' %}
+    {% endif %}
+{% endblock admin_modal %}

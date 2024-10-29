@@ -64,12 +64,16 @@ class ServerEngine(Engine):
         )
         # This code is intended to check the uniformity of the paths and names used for the application URLs
         url_map: defaultdict[str, list[str]] = defaultdict(list[str])
+        name_map: defaultdict[str, list[str]] = defaultdict(list[str])
         for route in app.routes:
             for handler in route.route_handlers:
                 if handler.name:
                     url_map[handler.name].append(route.path)
+                    name_map[route.path].append(handler.name)
         for name in sorted(url_map.keys()):
             logger.warning(f'{name}: {url_map[name]}')
+        for path in sorted(name_map.keys()):
+            logger.warning(f'{path}: {name_map[path]}')
         uvicorn.run(app, host=papi_web_config.web_host, port=papi_web_config.web_port, log_level='info', )
 
     @staticmethod

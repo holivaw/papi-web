@@ -10,7 +10,7 @@
                             {% if logging_level_id != min_logging_level %}
                                 hx-get="{{ url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab='messages') }}"
                                 hx-vals='{"min_logging_level": "{{ logging_level_id }}"}'
-                                hx-swap="multi:#admin-header,#admin-content"
+                                hx-target="body"
                                 hx-indicator="#please-wait"
                             {% endif %}
                     >
