@@ -50,9 +50,6 @@
                     Évènements (accès public)
                 </button>
                 <div
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="right"
-                        data-bs-html="true"
                         {% if admin_auth %}
                             {{ tooltip_attributes('info', 'L\'interface d\'arbitrage permet la gestion des tournois des évènements.', 'right') }}
                         {% else %}
@@ -62,7 +59,6 @@
                     <button
                             hx-get="{{ url_for('admin') }}"
                             preload
-                            hx-vals="{}"
                             hx-target="body"
                             hx-indicator="#please-wait"
                             class="btn btn-danger btn-lg p-1 w-100"

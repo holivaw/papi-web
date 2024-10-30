@@ -45,7 +45,6 @@
                                                 hx-confirm="Voulez-vous vraiment supprimer le résultat [{{tournament.uniq_id}}] {{tournament.current_round}}.{{board.id}}?"
                                                 hx-trigger="click[ctrlKey&&altKey]"
                                                 hx-delete="{{ url_for('user-delete-result', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, round=tournament.current_round, board_id=board.id) }}"
-                                                hx-swap="outerHTML transition:true"
                                                 hx-indicator="#please-wait"
                                                 hx-target="body"
                                             {% endif %}
@@ -57,7 +56,6 @@
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
-                                                hx-swap="transition:true"
                                             {% endif %}
                                         >{{ board.number }}.</th>
                                         <td
@@ -66,7 +64,6 @@
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
-                                                hx-swap="transition:true"
                                             {% endif %}
                                         >
                                             {{ wp.vpoints_str }}
@@ -78,7 +75,6 @@
                                                     hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                     preload
                                                     hx-target="body"
-                                                    hx-swap="transition:true"
                                                 {% endif %}
                                             >
                                                 [{{ wp.points_str }}]
@@ -109,7 +105,6 @@
                                                     hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                     preload
                                                     hx-target="body"
-                                                hx-swap="transition:true"
                                                 {% endif %}
                                             >
                                                 {% if bp.id != 1 %}
@@ -123,7 +118,6 @@
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
-                                                hx-swap="transition:true"
                                             {% endif %}
                                         >
                                             {% if bp.id != 1 %}

@@ -26,7 +26,10 @@
             <script src="{{ url_for('static', file_path='/lib/jstree/jstree-3.3.17-dist/jstree.min.js') }}"></script>
         {% endif %}
     </head>
-    <body hx-ext="multi-swap,preload">
+    <body
+            hx-ext="multi-swap,preload"
+            hx-swap="transition:true"
+    >
         <div id="messages" class="w-50 position-fixed top-0 end-0 m-2 z-2">
             {% include 'messages.html' %}
         </div>
