@@ -22,6 +22,6 @@ Simply checkout from https://github.com/papi-web-org/papi-web and play ;-)
 
 ## Création d'un exécutable Windows pour diffusion
 
-![](images/dev-server.jpg)
+![](images/dev-export.jpg)
 
 L'exécutable est créé dans le répertoire `..\export`.
