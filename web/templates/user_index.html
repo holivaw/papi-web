@@ -33,13 +33,9 @@
                 id="nav-{{ nav_id }}-tab"
                 hx-get="{{ url_for('user-tab', user_tab=nav_id) }}"
                 preload
-                hx-swap="multi:#user-header,#user-content"
-                data-bs-toggle="tab"
-                data-bs-target="#nav-{{ nav_tab.name }}"
+                hx-target="body"
                 type="button"
                 role="tab"
-                aria-controls="nav-{{ nav_id }}"
-                aria-selected="true"
                 hx-indicator="#please-wait"
                 {% if nav_tab.disabled %}
                     disabled

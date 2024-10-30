@@ -12,7 +12,7 @@
             class="btn btn-link link-dark fs-5 fw-bold px-1 py-0"
             hx-get="{{ url_for('user-tab', user_tab=target_tab) }}"
             preload
-            hx-swap="multi:#user-header,#user-content"
+            hx-target="body"
             hx-indicator="#please-wait"
             hx-trigger="click, keyup[key=='Escape'] from:body"
             hx-indicator="#please-wait"
@@ -39,13 +39,9 @@
                 id="nav-{{ nav_id }}-tab"
                 hx-get="{{ url_for('user-event-tab', event_uniq_id=user_event.uniq_id, user_event_tab=nav_id) }}"
                 preload
-                hx-swap="multi:#user-header,#user-content"
-                data-bs-toggle="tab"
-                data-bs-target="#nav-{{ nav_tab.name }}"
+                hx-target="body"
                 type="button"
                 role="tab"
-                aria-controls="nav-{{ nav_id }}"
-                aria-selected="true"
                 hx-indicator="#please-wait"
                 {% if nav_tab.disabled %}
                     disabled

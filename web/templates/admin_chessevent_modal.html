@@ -11,7 +11,7 @@
             {% else %}
                 hx-get="{{ url_for('unknown-action-' ~ action) }}"
             {% endif %}
-            hx-swap="multi:#messages,#admin-header,#admin-content"
+            hx-target="body"
             hx-indicator="#please-wait">
         <div class="modal-content">
             <div class="modal-header">
