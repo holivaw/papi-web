@@ -20,7 +20,7 @@ Dans tous les cas, si vous redistribuez ce produit vous devez :
 - faire référence au produit d'origine (Papi-web) ;
 - ne pas laisser d’ambiguïté sur l'origine du produit, qui pourrait laisser penser que vous en êtes l'auteur·ice ;
 
-Le terme distribution inclus ici toute livraison, même à un client unique, ainsi que la fourniture de services (hébergement, mode SaaS).
+Le terme distribution inclut ici toute livraison, même à un client unique, ainsi que la fourniture de services (hébergement, mode SaaS).
 
 ## Propriété
 
