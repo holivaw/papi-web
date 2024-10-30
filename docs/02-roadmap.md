@@ -8,7 +8,7 @@
 |                                      | 1.19       | 2.0         | 2.1         | 2.2           | 2.3           | 2.4           | 2.x             | 3.0             | Cible           |
 |--------------------------------------|------------|-------------|-------------|---------------|---------------|---------------|-----------------|-----------------|-----------------|
 | **LAN**<br/>Open source              | :x:        | :ok:        | :ok:        | :ok:          | :ok:          | :ok:          | :ok:            | :ok:            | :ok:            |
-| **LAN**<br/>Logiciel libre           | :x:        | :x:         | :x:         | :x:           | :x:           | :ok:          | :ok:            | :ok:            | :ok:            |
+| **LAN**<br/>Logiciel libre           | :x:        | :x:         | :x:         | :x:           | :x:           | :ok: AGPL     | :ok: AGPL       | :ok: AGPL       | :ok: AGPL       |
 | **LAN**<br/>Serveur web inclus       | :x: XAMPP  | :ok: Django | :ok: Django | :ok: LiteStar | :ok: Litestar | :ok: Litestar | :ok: Litestar   | :ok: Litestar   | :ok: Litestar   |
 | **LAN**<br/>Pilote BDD inclus        | :x: ODBC   | :x: ODBC    | :x: ODBC    | :x: ODBC      | :x: ODBC      | :x: ODBC      | :grey_question: | :ok: SQLite     | :ok: SQLite     |
 | **LAN**<br/>Support Windows          | :ok:       | :ok:        | :ok:        | :ok:          | :ok:          | :ok:          | :ok:            | :ok:            | :ok:            |
@@ -25,7 +25,7 @@
 | **SaaS**<br/>Stockage                | -          | -           | -           | -             | -             | -             | -               | :grey_question: | :ok: Postgres   |
 | **Appariement**<br/>Moteur           | :x: Papi   | :x: Papi    | :x: Papi    | :x: Papi      | :x: Papi      | :x: Papi      | :grey_question: | :ok: bbp        | :ok: bbp        |
 | **Appariement**<br/>Support Papi     | 3.3.6      | 3.3.6       | 3.3.7       | 3.3.7         | 3.3.7         | 3.3.8         | :grey_question: | -               | -               |           
-| **Internationalisation**             | :x: FR     | :x: FR      | :x: FR      | :x: FR        | :x: FR        | :x: FR        | :grey_question: |                 | :ok: EN/FR      |
+| **Internationalisation**             | :x: FR     | :x: FR      | :x: FR      | :x: FR        | :x: FR        | :x: FR        | :grey_question: | :ok: EN/FR      | :ok: EN/FR      |
 | **Homologation FIDE**                | :x:        | :x:         | :x:         | :x:           | :x:           | :x:           | :x:             | :grey_question: | :ok:            |
 | **Utilisation**<br/>HTMX             | :x:        | :x:         | :x:         | :x:           | :x:           | :ok:          | :ok:            | :ok:            | :ok:            |
 | **Utilisation**<br/>Multi-écrans     | :ok:       | :ok:        | :ok:        | :ok:          | :ok:          | :ok:          | :ok:            | :ok:            | :ok:            |
