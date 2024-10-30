@@ -9,7 +9,7 @@ Papi-web - © Projet Papi-web 2013-2024 - https://github.com/papi-web-org/papi-w
 ## Généralités
 
 - [Présentation](docs/01-summary.md)
-- [Nouveautés de la version 2](docs/02-roadmap.md) _([ChangeLog](docs/03-change-log.md), [mainteneur·euses et contributeur·trices](docs/04-contributors.md))_
+- [Nouveautés de la version 2 et roadmap](docs/02-roadmap.md) _([ChangeLog](docs/03-change-log.md), [mainteneur·euses et contributeur·trices](docs/04-contributors.md))_
 - [Installation et mise à jour](docs/05-install.md)
 - [Configuration et utilisation](docs/06-use.md)
 - [Guide de référence de la configuration des évènements](docs/40-ref.md)
