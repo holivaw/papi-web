@@ -22,6 +22,6 @@
 
 ## Autres réflexions en cours
 
-- [ ] Poser une ou plusieurs licences sur le code de Papi-web ([détails](94-license.md))
-- [ ] Remplacement des fichiers de configuration INI par une interface web (en cours)
+- [X] ~~Poser une ou plusieurs licences sur le code de Papi-web (PA/SP, ajouté en version 2.4)~~
+- [X] ~~Remplacement des fichiers de configuration INI par une interface web (PA, ajouté en version 2.4)~~
 - [ ] Mettre en place un système multilingue pour les tournois internationaux

@@ -1,0 +1,80 @@
+{% from 'macros.j2' import tooltip_attributes, tooltip_script, background_script %}
+
+{% extends 'base.html' %}
+
+{% block header %}
+    <div id="admin-header" class="header admin-header position-sticky top-0 mx-2 border-bottom border-dark">
+        <div hx-ext="bs-tabs" class="bs-tabs">
+            <nav>
+                <div class="nav nav-tabs mt-1" id="nav-tab" role="tablist">
+                    <!-- block admin_header_back_button -->
+                    {% block admin_header_back_button %}
+                        ADMIN_HEADER_BACK_BUTTON
+                    {% endblock admin_header_back_button %}
+                    <!-- end block admin_header_back_button -->
+                    <!-- block admin_header_nav -->
+                    {% block admin_header_nav %}
+                        ADMIN_HEADER_NAV
+                    {% endblock admin_header_nav %}
+                    <!-- end block admin_header_nav -->
+                    <span
+                            class="text-nowrap ms-auto mt-1"
+                            {{ tooltip_attributes('info', 'Changer le nombre de colonnes utilisées.', 'top') }}
+                    >
+                        {% for c in papi_web_config.allowed_columns %}
+                            {% if c == admin_columns %}
+                                <button
+                                        class="btn {% if c == admin_columns %}btn-primary{% else %}btn-secondary{% endif %} text-nowrap py-0 px-1"
+                                        disabled
+                                >
+                                    {{ c }}
+                                </button>
+                            {% else %}
+                                <button
+                                        class="btn {% if c == admin_columns %}btn-primary{% else %}btn-secondary{% endif %} text-nowrap py-0 px-1"
+                                        hx-get="{{
+                                            (
+                                                url_for('admin-event-tab', event_uniq_id=admin_event.uniq_id, admin_event_tab=admin_event_tab)
+                                                if admin_event_tab else
+                                                url_for('admin-event', event_uniq_id=admin_event.uniq_id)
+                                            ) if admin_event else (
+                                                url_for('admin-tab', admin_tab=admin_tab)
+                                                if admin_event_tab else
+                                                url_for('admin')
+                                            )
+                                        }}"
+                                        hx-vals='{"admin_columns": "{{ c }}"}'
+                                        hx-target="body"
+                                        hx-indicator="#please-wait"
+                                >
+                                    {{ c }}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </nav>
+        </div>
+    </div>
+{% endblock header %}
+
+{% block content %}
+    <div id="admin-content" class="content admin-content tab-content border border-dark mx-2 p-3">
+        <!-- block admin_content -->
+        {% block admin_content %}
+            ADMIN_CONTENT
+        {% endblock admin_content %}
+        <!-- end block admin_content -->
+    </div>
+{% endblock content %}
+
+{% block modal %}
+    <!-- block admin_modal -->
+    {% block admin_modal %}
+        ADMIN_MODAL
+    {% endblock admin_modal %}
+    <!-- end block admin_modal -->
+{% endblock modal %}
+
+{% block footer %}
+{% endblock footer %}

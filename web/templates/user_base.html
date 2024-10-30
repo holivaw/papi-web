@@ -1,0 +1,86 @@
+{% from 'macros.j2' import tooltip_attributes, screen_type_icon, rotator_icon, tooltip_script, background_script, copyright_script %}
+
+{% extends 'base.html' %}
+
+{% block header %}
+    <div id="user-header" class="header user-header position-sticky top-0 mx-2 border-bottom border-dark">
+        <div hx-ext="bs-tabs" class="bs-tabs">
+            <nav>
+                <div class="nav nav-tabs mt-1" id="nav-tab" role="tablist">
+                    <!-- end block user_header_back_button -->
+                    {% block user_header_back_button %}
+                        USER_HEADER_BACK_BUTTON
+                    {% endblock user_header_back_button %}
+                    <!-- end block user_header_back_button -->
+                    <!-- end block user_header_refresher -->
+                    {% block user_header_refresher %}
+                        USER_HEADER_REFRESHER
+                    {% endblock user_header_refresher %}
+                    <!-- end block user_header_refresher -->
+                    <!-- block user_header_nav -->
+                    {% block user_header_nav %}
+                        USER_HEADER_NAV
+                    {% endblock user_header_nav %}
+                    <!-- end block user_header_nav -->
+                    <span
+                            class="text-nowrap ms-auto mt-1"
+                            {{ tooltip_attributes('info', 'Changer le nombre de colonnes utilisées.', 'top') }}
+                    >
+                        {% for c in papi_web_config.allowed_columns %}
+                            {% if c == user_columns %}
+                                <button
+                                        class="btn {% if c == user_columns %}btn-primary{% else %}btn-secondary{% endif %} text-nowrap py-0 px-1"
+                                        disabled
+                                >
+                                    {{ c }}
+                                </button>
+                            {% else %}
+                                <button
+                                        class="btn {% if c == user_columns %}btn-primary{% else %}btn-secondary{% endif %} text-nowrap py-0 px-1"
+                                        hx-get="{{
+                                            (
+                                                url_for('user-event-tab', event_uniq_id=user_event.uniq_id, user_event_tab=user_event_tab)
+                                                if user_event_tab else
+                                                url_for('user-event', event_uniq_id=user_event.uniq_id)
+                                            ) if user_event else (
+                                                url_for('user-tab', user_tab=user_tab)
+                                                if user_event_tab else
+                                                url_for('user')
+                                            )
+                                        }}"
+                                        hx-vals='{"user_columns": "{{ c }}"}'
+                                        hx-target="body"
+                                        hx-indicator="#please-wait"
+                                >
+                                    {{ c }}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </nav>
+        </div>
+        {{ copyright_script(show=true) }}
+    </div>
+{% endblock header %}
+
+{% block content %}
+    <div id="user-content" class="content user-content tab-content border border-dark mx-2 p-3">
+        <!-- block user_content -->
+        {% block user_content %}
+            USER_CONTENT
+        {% endblock user_content %}
+        <!-- end block user_content -->
+   </div>
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block modal %}
+    <!-- block user_modal -->
+    {% block user_modal %}
+        USER_MODAL
+    {% endblock user_modal %}
+    <!-- end block user_modal -->
+{% endblock modal %}

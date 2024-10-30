@@ -1,13 +1,16 @@
 # Papi-web, pour les arbitres 2.0
 
-Papi-web, programme de saisie des résultats dans Papi et de mise en ligne des résultats sur le site fédéral, a été développé à titre gracieux pour les arbitres et organisateur·trices de la Fédération Française des Échecs par Pascal AUBRY. Il est livré sans aucune garantie et peut être redistribué, sans aucune contrepartie financière.
+Papi-web, programme de saisie des résultats dans Papi et de mise en ligne des résultats sur le site fédéral, a été développé à titre gracieux pour les arbitres et organisateur·trices de la Fédération Française des Échecs par Pascal AUBRY depuis 2013.
+
+Papi-web - © Projet Papi-web 2013-2024 - https://github.com/papi-web-org/papi-web ([copyright](COPYRIGHT.md))
 
 - **[Télécharger la dernière version stable (2.3.2)](https://github.com/papi-web-org/papi-web/releases/download/2.3.2/papi-web-2.3.2.zip)**
+- **[Télécharger la future version (2.4)](https://github.com/papi-web-org/papi-web/releases/download/2.4rc13/papi-web-2.4rc13.zip)**
 
 ## Généralités
 
 - [Présentation](docs/01-summary.md)
-- [Nouveautés de la version 2](docs/02-v2-news.md) _([ChangeLog](docs/03-change-log.md), [contributeur·trices](docs/04-contributors.md))_
+- [Nouveautés de la version 2](docs/02-roadmap.md) _([ChangeLog](docs/03-change-log.md), [mainteneur·euses et contributeur·trices](docs/04-contributors.md))_
 - [Installation et mise à jour](docs/05-install.md)
 - [Configuration et utilisation](docs/06-use.md)
 - [Guide de référence de la configuration des évènements](docs/40-ref.md)
