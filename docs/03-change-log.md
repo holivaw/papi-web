@@ -2,7 +2,7 @@
 
 # Papi-web - ChangeLog
 
-## Version 2.4 - septembre 2024
+## Version 2.4.0 - 30 octobre 2024
 - Déclaration de tous les objets par l'interface web (Abandon du format INI)
 - Ajout de la création automatique de tournois d'exemple
 - Fluidification de la navigation (HTMX)

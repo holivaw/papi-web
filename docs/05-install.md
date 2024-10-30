@@ -5,7 +5,7 @@
 ## Prérequis
 
 Un ordinateur sous Windows avec :
-  - [la dernière version de Papi](https://dna.ffechecs.fr/ressources/appariements/papi/) opérationnelle (septembre 2023 : version 3.3.7)
+  - [la dernière version de Papi](https://dna.ffechecs.fr/ressources/appariements/papi/) opérationnelle (septembre 2024 : version 3.3.8)
   - [le pilote Access](https://www.microsoft.com/en-us/download/details.aspx?id=54920) permettant de modifier les fichiers Papi
 
 > [!NOTE]
@@ -16,7 +16,7 @@ Un ordinateur sous Windows avec :
 Téléchargez la dernière version de Papi-web, décompressez et installez-la 
 sur l'ordinateur qui jouera le rôle de serveur (sur lequel seront également les fichiers Papi).
 
-- **[Télécharger la dernière version stable (2.3.2)](https://github.com/papi-web-org/papi-web/releases/download/2.3.2/papi-web-2.3.2.zip)**
+- **[Télécharger la dernière version stable (2.4.0)](https://github.com/papi-web-org/papi-web/releases/download/2.4.0/papi-web-2.4.0.zip)**
 - **[Voir toutes les versions](https://github.com/papi-web-org/papi-web/releases)**
 
 | Fichiers et répertoires                                                | Type                 | Signification                                                                                                                                   |
