@@ -1,20 +1,18 @@
-from collections import defaultdict
+import platform
+import socket
+from logging import Logger
 from threading import Thread
 from time import sleep
+from webbrowser import open
 
 import pyodbc
 import requests
-from webbrowser import open
-import socket
-from logging import Logger
-from litestar import Litestar
 import uvicorn
+from litestar import Litestar
 from litestar.contrib.htmx.request import HTMXRequest
 
-from common.logger import get_logger
 from common.engine import Engine
-import platform
-
+from common.logger import get_logger
 from common.papi_web_config import PapiWebConfig
 from web.settings import route_handlers, template_config, middlewares
 
@@ -63,17 +61,17 @@ class ServerEngine(Engine):
             middleware=middlewares,
         )
         # This code is intended to check the uniformity of the paths and names used for the application URLs
-        url_map: defaultdict[str, list[str]] = defaultdict(list[str])
-        name_map: defaultdict[str, list[str]] = defaultdict(list[str])
-        for route in app.routes:
-            for handler in route.route_handlers:
-                if handler.name:
-                    url_map[handler.name].append(route.path)
-                    name_map[route.path].append(handler.name)
-        for name in sorted(url_map.keys()):
-            logger.warning(f'{name}: {url_map[name]}')
-        for path in sorted(name_map.keys()):
-            logger.warning(f'{path}: {name_map[path]}')
+        # url_map: defaultdict[str, list[str]] = defaultdict(list[str])
+        # name_map: defaultdict[str, list[str]] = defaultdict(list[str])
+        # for route in app.routes:
+        #     for handler in route.route_handlers:
+        #         if handler.name:
+        #             url_map[handler.name].append(route.path)
+        #             name_map[route.path].append(handler.name)
+        # for name in sorted(url_map.keys()):
+        #     logger.warning(f'{name}: {url_map[name]}')
+        # for path in sorted(name_map.keys()):
+        #     logger.warning(f'{path}: {name_map[path]}')
         uvicorn.run(app, host=papi_web_config.web_host, port=papi_web_config.web_port, log_level='info', )
 
     @staticmethod
