@@ -2,8 +2,6 @@
 
 # Papi-web - Roadmap
 
-## Usage local (connexion à un serveur local sur un réseau local)
-
 - LAN = usage en réseau local (sur un serveur local)
 - SaaS = usage en ligne (sur un serveur distant)
 
