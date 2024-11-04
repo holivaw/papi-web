@@ -86,7 +86,7 @@
                                     {% if nav_tab.rotators %}
                                         {% for rotator in nav_tab.rotators %}
                                             {% with
-                                                card_url=url_for('user-rotator', event_uniq_id=user_event.uniq_id, rotator_id=rotator.id),
+                                                card_url=url_for('user-rotator', event_uniq_id=user_event.uniq_id, rotator_id=rotator.id, rotator_screen_index=0),
                                                 card_class=('bg-light' if rotator.public else 'bg-danger-subtle') if admin_auth else 'bg-light',
                                                 card_background_url=rotator.event.background_url,
                                                 card_background_color=rotator.event.background_color
