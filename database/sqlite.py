@@ -230,8 +230,7 @@ class EventDatabase(SQLiteDatabase):
                         yml_file, '', event_dict,
                         mandatory_fields=['name', ],
                         optional_fields=['start', 'stop', 'path', 'background_image', 'background_color', 'public',
-                                         'update_password', 'record_illegal_moves',
-                                         'allow_results_deletion_on_input_screens', 'chessevents', 'tournaments',
+                                         'update_password', 'record_illegal_moves', 'chessevents', 'tournaments',
                                          'timers', 'screens', 'families', 'rotators', 'timer_colors', 'timer_delays', ],
                         empty_allowed=False)
                     timer_delays: dict[int, int] | None = None
@@ -264,8 +263,6 @@ class EventDatabase(SQLiteDatabase):
                         background_color=event_dict.get('background_color', None),
                         update_password=event_dict.get('update_password', None),
                         record_illegal_moves=event_dict.get('record_illegal_moves', None),
-                        allow_results_deletion_on_input_screens=event_dict.get(
-                            'allow_results_deletion_on_input_screens', None),
                         timer_colors=timer_colors,
                         timer_delays=timer_delays,
                         public=event_dict.get('public', False),
@@ -635,8 +632,6 @@ class EventDatabase(SQLiteDatabase):
             background_color=row['background_color'],
             update_password=row['update_password'],
             record_illegal_moves=row['record_illegal_moves'],
-            allow_results_deletion_on_input_screens=self.load_bool_from_database_field(
-                row['allow_results_deletion_on_input_screens']),
             timer_colors=self.set_dict_int_keys(self.load_json_from_database_field(row['timer_colors'])),
             timer_delays=self.set_dict_int_keys(self.load_json_from_database_field(row['timer_delays'])),
             last_update=row['last_update'],
@@ -679,6 +674,7 @@ class EventDatabase(SQLiteDatabase):
         target_version: Version = Version('2.4.2')
         if self.version.public in ['2.4.0', '2.4.1', ]:
             self._execute('ALTER TABLE `screen` ADD `results_max_age` INTEGER')
+            self._execute('ALTER TABLE `info` DROP COLUMN `allow_results_deletion_on_input_screens`')
             self.set_version(target_version)
             self.commit()
             logger.info(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
@@ -705,14 +701,12 @@ class EventDatabase(SQLiteDatabase):
         `stored_event`."""
         fields: list[str] = [
             'name', 'start', 'stop', 'public', 'path', 'background_image', 'background_color', 'update_password',
-            'record_illegal_moves', 'allow_results_deletion_on_input_screens', 'timer_colors', 'timer_delays',
-            'last_update',
+            'record_illegal_moves', 'timer_colors', 'timer_delays', 'last_update',
         ]
         params: tuple = (
             stored_event.name, stored_event.start, stored_event.stop, stored_event.public, stored_event.path,
             stored_event.background_image, stored_event.background_color, stored_event.update_password,
-            stored_event.record_illegal_moves, stored_event.allow_results_deletion_on_input_screens,
-            self.dump_to_json_database_timer_colors(stored_event.timer_colors),
+            stored_event.record_illegal_moves, self.dump_to_json_database_timer_colors(stored_event.timer_colors),
             self.dump_to_json_database_timer_delays(stored_event.timer_delays),
             time.time(),
         )

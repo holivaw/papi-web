@@ -244,7 +244,6 @@ class EventAdminController(AbstractEventAdminController):
         background_color: str | None = None
         update_password: str | None = None
         record_illegal_moves: int | None = None
-        allow_results_deletion_on_input_screens: bool | None = None
         timer_colors: dict[int, str | None] = {i: None for i in range(1, 4)}
         timer_color_checkboxes: dict[int, bool | None] = {i: None for i in range(1, 4)}
         timer_delays: dict[int, int | None] = {i: None for i in range(1, 4)}
@@ -278,17 +277,12 @@ class EventAdminController(AbstractEventAdminController):
                         background_color = WebContext.form_data_to_rgb(data, field)
                     except ValueError:
                         errors[field] = f'La couleur [{data[field]}] n\'est pas valide (attendu [#RRGGBB]).'
+                field: str = 'record_illegal_moves'
                 try:
-                    record_illegal_moves = WebContext.form_data_to_int(data, 'record_illegal_moves')
+                    record_illegal_moves = WebContext.form_data_to_int(data, field)
                     assert record_illegal_moves is None or 0 <= record_illegal_moves <= 3
                 except (ValueError, AssertionError):
                     errors['record_illegal_moves'] = f'La valeur entrée [{data[field]}] n\'est pas valide.'
-                try:
-                    allow_results_deletion_on_input_screens = WebContext.form_data_to_bool(
-                        data, 'allow_results_deletion_on_input_screens')
-                except ValueError:
-                    errors['allow_results_deletion_on_input_screens'] = \
-                        f'La valeur entrée [{data[field]}] n\'est pas valide.'
                 for i in range(1, 4):
                     field: str = f'color_{i}'
                     timer_color_checkboxes[i] = WebContext.form_data_to_bool(data, field + '_checkbox')
@@ -308,8 +302,6 @@ class EventAdminController(AbstractEventAdminController):
                 background_image = web_context.admin_event.stored_event.background_image
                 background_color = web_context.admin_event.stored_event.background_color
                 record_illegal_moves = web_context.admin_event.stored_event.record_illegal_moves
-                allow_results_deletion_on_input_screens = \
-                    web_context.admin_event.stored_event.allow_results_deletion_on_input_screens
                 timer_colors = web_context.admin_event.stored_event.timer_colors
                 timer_delays = web_context.admin_event.stored_event.timer_delays
             case 'delete':
@@ -327,7 +319,6 @@ class EventAdminController(AbstractEventAdminController):
             background_color=background_color,
             update_password=update_password,
             record_illegal_moves=record_illegal_moves,
-            allow_results_deletion_on_input_screens=allow_results_deletion_on_input_screens,
             timer_colors=timer_colors,
             timer_delays=timer_delays,
             errors=errors,
@@ -429,8 +420,6 @@ class EventAdminController(AbstractEventAdminController):
                                 web_context.admin_event.stored_event.update_password)
                             data['record_illegal_moves'] = WebContext.value_to_form_data(
                                 web_context.admin_event.stored_event.record_illegal_moves)
-                            data['allow_results_deletion_on_input_screens'] = WebContext.value_to_form_data(
-                                web_context.admin_event.stored_event.allow_results_deletion_on_input_screens)
                             for i in range(1, 4):
                                 data[f'color_{i}'] = WebContext.value_to_form_data(
                                     web_context.admin_event.timer_colors[i])
@@ -446,19 +435,9 @@ class EventAdminController(AbstractEventAdminController):
                     errors = stored_event.errors
                 if errors is None:
                     errors = {}
-                allow_results_deletion_on_input_screens_options: dict[str, str] = {
-                    '': '',
-                    'off': 'Non autorisée',
-                    'on': 'Autorisée',
-                }
-                default_option = PapiWebConfig.default_allow_results_deletion_on_input_screens
-                allow_results_deletion_on_input_screens_options[''] = \
-                    (f'Par défaut '
-                     f'({allow_results_deletion_on_input_screens_options["on" if default_option else "off"]})')
                 template_context |= {
                     'record_illegal_moves_options': cls._get_record_illegal_moves_options(
                         PapiWebConfig.default_record_illegal_moves_number),
-                    'allow_results_deletion_on_input_screens_options': allow_results_deletion_on_input_screens_options,
                     'timer_color_texts': cls._get_timer_color_texts(PapiWebConfig.default_timer_delays),
                     'background_images_jstree_data': cls.background_images_jstree_data(
                         data['background_image']) if action == 'update' else {},

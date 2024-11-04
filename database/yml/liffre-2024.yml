@@ -5,7 +5,6 @@ background_image: "FRA/BRE/35/F35046.png"
 background_color: "#d8d8d8"
 update_password: "mot_de_passe"
 record_illegal_moves: 0
-allow_results_deletion_on_input_screens: false
 chessevents:
   liffre-10:
     user_id: "pascal"

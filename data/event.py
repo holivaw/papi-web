@@ -206,13 +206,6 @@ class Event:
             return PapiWebConfig.default_record_illegal_moves_number
         return self.stored_event.record_illegal_moves
 
-    @property
-    def allow_results_deletion_on_input_screens(self) -> bool:
-        if self.stored_event.allow_results_deletion_on_input_screens is None:
-            return PapiWebConfig.default_allow_results_deletion_on_input_screens
-        else:
-            return self.stored_event.allow_results_deletion_on_input_screens
-
     @cached_property
     def timer_colors(self) -> dict[int, str]:
         return {
@@ -334,10 +327,6 @@ class Event:
             self.add_debug('pas de mot de passe défini pour les écrans de saisie')
         if self.stored_event.record_illegal_moves is None:
             self.add_debug(f'nombre de coups illégaux non défini, par défaut [{self.record_illegal_moves}]')
-        if self.stored_event.allow_results_deletion_on_input_screens is None:
-            self.add_debug(
-                f'Autorisation de suppression des résultats entrés non définie, par défaut '
-                f'[{"autorisée" if self.allow_results_deletion_on_input_screens else "non autorisée"}]')
 
     def _build_chessevents(self):
         for stored_chessevent in self.stored_event.stored_chessevents:

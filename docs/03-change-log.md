@@ -2,6 +2,11 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.2 - 4 novembre 2024
+- Optimisation des temps de rafraichissement des pages de saisie des résultats
+- Ajout de la possibilité d'effacer ou rectifier un résultat mal rentré sur les pages de saisie (administration)
+- Ajout d'un paramètre pour les écrans de résultats pour limiter l'âge des résultats affichés
+
 ## Version 2.4.1 - 3 novembre 2024
 - Correction d'un bug sur l'affichage des écrans rotatifs
 

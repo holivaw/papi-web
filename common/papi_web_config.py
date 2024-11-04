@@ -240,8 +240,6 @@ class PapiWebConfig(metaclass=Singleton):
 
     default_record_illegal_moves_number: int = 0
 
-    default_allow_results_deletion_on_input_screens: bool = False
-
     default_timer_colors: dict[int, str] = {
             1: '#00FF00',
             2: '#FF7700',

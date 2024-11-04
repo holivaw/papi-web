@@ -316,10 +316,6 @@
                                 {% endwith %}
                             </div>
                             <div class="col-6">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
                                 {% with id='record-illegal-moves', name='record_illegal_moves' %}
                                     <label for="{{ id }}" class="form-label">Enregistrement des coups illégaux :</label>
                                     <select
@@ -335,28 +331,6 @@
                                       Le nombre maximum de coups illégaux que l'on peut enregistrer par ronde pour un·e joueur·euse
                                         (de 0 à 3, par défaut {% if papi_web_config.default_record_illegal_moves_enabled %}{{ papi_web_config.default_record_illegal_moves_number }}{% else %}0{% endif %}).
                                         Cette valeur peut être modifiée pour chaque tournoi.
-                                    </div>
-                                    {% if name in errors %}
-                                        <div id="{{ id }}-error" class="form-text invalid-feedback">
-                                            {{ errors[name] }}
-                                        </div>
-                                    {% endif %}
-                                {% endwith %}
-                            </div>
-                            <div class="col-6">
-                                {% with id='allow-results-deletion-on-input-screens', name='allow_results_deletion_on_input_screens' %}
-                                    <label for="{{ id }}" class="form-label">Suppression des résultats entrés :</label>
-                                    <select
-                                            name="{{ name }}"
-                                            id="{{ id }}"
-                                            class="form-control {% if name in errors %}is-invalid{% else %}is-valid{% endif %}"
-                                            aria-describedby="{{ id }}-help {{ id }}-error" >
-                                        {% for value, text in allow_results_deletion_on_input_screens_options.items() %}
-                                            <option value="{{ value }}" {% if value == data[name] %}selected{%endif %}>{{ text }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div id="{{ id }}-help" class="form-text">
-                                      Si elle est autorisée, la suppression des résultats entrés sur les écrans de saisie est réalisée par la combinaison Ctrl+Alt+click.
                                     </div>
                                     {% if name in errors %}
                                         <div id="{{ id }}-error" class="form-text invalid-feedback">

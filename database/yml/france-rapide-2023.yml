@@ -5,7 +5,6 @@ background_image: "FRA/FRA.png"
 background_color: "#f5f5f5"
 update_password: "mot_de_passe"
 record_illegal_moves: 0
-allow_results_deletion_on_input_screens: true
 timers:
   chronometre:
     hours:

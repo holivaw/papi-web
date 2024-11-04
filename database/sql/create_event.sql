@@ -23,7 +23,6 @@ CREATE TABLE `info` (
     `background_color` TEXT,
     `update_password` TEXT,
     `record_illegal_moves` INTEGER,
-    `allow_results_deletion_on_input_screens` INTEGER,
     `timer_colors` TEXT,
     `timer_delays` TEXT,
     `last_update` FLOAT NOT NULL

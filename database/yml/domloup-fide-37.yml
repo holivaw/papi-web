@@ -5,7 +5,6 @@ background_image: "FRA/BRE/35/F35043.png"
 background_color: "#e5f4ff"
 update_password: "mot_de_passe"
 record_illegal_moves: 0
-allow_results_deletion_on_input_screens: true
 chessevents:
   domloup-fide-37:
     user_id: "C69548"

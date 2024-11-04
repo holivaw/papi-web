@@ -170,7 +170,6 @@ class AbstractIndexAdminController(AbstractAdminController):
             background_color=None,
             update_password=None,
             record_illegal_moves=None,
-            allow_results_deletion_on_input_screens=None,
             timer_colors={i: None for i in range(1, 4)},
             timer_delays={i: None for i in range(1, 4)},
             errors=errors,
@@ -190,7 +189,7 @@ class AbstractIndexAdminController(AbstractAdminController):
             return web_context.error
         event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
         archive_loader: ArchiveLoader = ArchiveLoader.get(request=request)
-        nav_tabs: dict[str, dict[str]] = {
+        nav_tabs: dict[str, dict[str, Any]] = {
             'current_events': {
                 'title': f'Évènements en cours ({len(event_loader.current_events) or "-"})',
                 'template': 'admin_events.html',

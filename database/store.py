@@ -157,7 +157,6 @@ class StoredEvent:
     background_color: str | None = None
     update_password: str | None = None
     record_illegal_moves: int | None = None
-    allow_results_deletion_on_input_screens: bool | None = None
     version: str | None = None
     timer_colors: dict[int, str | None] = None
     timer_delays: dict[int, int | None] = None

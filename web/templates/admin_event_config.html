@@ -87,11 +87,6 @@
             <td></td>
         </tr>
         <tr>
-            <th scope="row" class="text-nowrap">Suppression des résultats entrés sur les écrans de saisie</th>
-            <td class="text-nowrap">{% if admin_event.allow_results_deletion_on_input_screens %}Autorisée{% else %}Non autorisée{% endif %}{% if admin_event.stored_event.allow_results_deletion_on_input_screens is none %}<span class="fst-italic"> (par défaut)</span>{% endif %}</td>
-            <td></td>
-        </tr>
-        <tr>
             <th scope="row" class="text-nowrap">Paramètres par défaut des chronomètres</th>
             <td class="text-nowrap">
                 <div style="background-color: {{ admin_event.timer_colors[1] }}">&nbsp;{{ admin_event.timer_delays[1] }} minutes avant&nbsp;</div>
