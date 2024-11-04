@@ -108,7 +108,7 @@ class AbstractEventAdminController(AbstractIndexAdminController):
                 'icon_class': 'bi-sign-stop-fill',
             },
         }
-        nav_tabs: dict[str, dict[str]] = {
+        nav_tabs: dict[str, dict[str, str]] = {
             'config': {
                 'title': web_context.admin_event.uniq_id,
                 'template': 'admin_event_config.html',
