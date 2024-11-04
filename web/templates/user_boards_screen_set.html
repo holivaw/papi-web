@@ -2,17 +2,6 @@
     <div
             class="boards-screen-set"
     >
-        {% if not rotator %}
-            <div
-                    class="refresher screen-set-refresher"
-                    hx-headers='{"If-Modified-Since": "{{ now_http_date }}"}'
-                    hx-get="{{ url_for('user-screen-set', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, screen_set_uniq_id=screen_set.uniq_id) }}"
-                    hx-target="closest .boards-screen-set"
-                    hx-swap="outerHTML"
-                    hx-trigger="every {{ papi_web_config.user_screen_set_update_delay }}s queue:none"
-                    hx-indicator="#please-wait"
-            ></div>
-        {% endif %}
         {% if tournament.current_round %}
             <div class="boards-set">
                 <h2 class="set-title text-center">{{ screen_set.name_for_boards }} (ronde {{ tournament.current_round }})</h2>
@@ -34,36 +23,33 @@
                                 </thead>
                                 <tbody>
                                 {% for board in boards %}
-                                    {% with wp=board.white_player, bp=board.black_player %}
+                                    {% with wp=board.white_player, bp=board.black_player, editable=screen.type == 'input' and (not board.result_str or (admin_auth and board.black_player.id != 1)) %}
                                     <tr
                                         id="tournament-{{ tournament.id }}-board-{{ board.id }}-row"
                                         class="
                                             board-row
+                                            {% if editable %}editable{% endif %}
+                                            {% if admin_auth %}admin{% endif %}
                                             {% if board.result_str %}result-set{% else %}result-not-set fw-bold{% endif %}
                                             {% if last_result_updated and last_result_updated.expiration > now and last_result_updated.tournament_id == tournament.id and last_result_updated.round == tournament.current_round and last_result_updated.board_id == board.id %}last_result_updated{% endif %}"
-                                            {% if screen.type == 'input' and board.result_str and user_event.allow_results_deletion_on_input_screens %}
-                                                hx-confirm="Voulez-vous vraiment supprimer le résultat [{{tournament.uniq_id}}] {{tournament.current_round}}.{{board.id}}?"
-                                                hx-trigger="click[ctrlKey&&altKey]"
-                                                hx-delete="{{ url_for('user-delete-result', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, round=tournament.current_round, board_id=board.id) }}"
-                                                hx-indicator="#please-wait"
-                                                hx-target="body"
-                                            {% endif %}
                                         >
                                         <th
                                             scope="row"
                                             class="board-number bg-transparent text-end"
-                                            {% if screen.type == 'input' and not board.result_str %}
+                                            {% if editable %}
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
+                                                hx-indicator="#please-wait"
                                             {% endif %}
                                         >{{ board.number }}.</th>
                                         <td
                                             class="points bg-transparent text-center"
-                                            {% if screen.type == 'input' and not board.result_str %}
+                                            {% if editable %}
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
+                                                hx-indicator="#please-wait"
                                             {% endif %}
                                         >
                                             {{ wp.vpoints_str }}
@@ -71,10 +57,11 @@
                                         {% if tournament.print_real_points %}
                                             <td
                                                 class="points bg-transparent text-center"
-                                                {% if screen.type == 'input' and not board.result_str %}
+                                                {% if editable %}
                                                     hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                     preload
                                                     hx-target="body"
+                                                    hx-indicator="#please-wait"
                                                 {% endif %}
                                             >
                                                 [{{ wp.points_str }}]
@@ -86,10 +73,11 @@
                                         {% endwith %}{% endwith %}
                                         <td
                                             class="score bg-transparent text-center"
-                                            {% if screen.type == 'input' and not board.result_str %}
+                                            {% if editable %}
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
+                                                hx-indicator="#please-wait"
                                             {% endif %}
                                         >
                                             {% if board.result_str %}{{ board.result_str }}{% else %}n°{{ board.number }}{% endif %}
@@ -101,10 +89,11 @@
                                         {% if tournament.print_real_points %}
                                             <td
                                                 class="points bg-transparent text-center"
-                                                {% if screen.type == 'input' and not board.result_str %}
+                                                {% if editable %}
                                                     hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                     preload
                                                     hx-target="body"
+                                                    hx-indicator="#please-wait"
                                                 {% endif %}
                                             >
                                                 {% if bp.id != 1 %}
@@ -114,10 +103,11 @@
                                         {% endif %}
                                         <td
                                             class="points bg-transparent text-center"
-                                            {% if screen.type == 'input' and not board.result_str %}
+                                            {% if editable %}
                                                 hx-get="{{ url_for('user-result-modal', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, board_id=board.id) }}"
                                                 preload
                                                 hx-target="body"
+                                                hx-indicator="#please-wait"
                                             {% endif %}
                                         >
                                             {% if bp.id != 1 %}

@@ -40,23 +40,25 @@
             <!-- user_timer.html -->
             {% include 'user_timer.html' %}
         {% endif %}
-        {% if rotator %}
-            <div
-                    class="rotator-refresher"
-                    hx-get="{{ url_for('user-rotator', event_uniq_id=user_event.uniq_id, rotator_id=rotator.id, rotator_screen_index=rotator_screen_index + 1) }}"
-                    hx-target="body"
-                    hx-trigger="every {{ rotator.delay }}s"
-                    hx-indicator="#please-wait"
-            ></div>
-        {% else %}
-            <div
-                    class="refresher screen-refresher"
-                    hx-headers='{"If-Modified-Since": "{{ now_http_date }}"}'
-                    hx-get="{{ url_for('user-screen', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id) }}"
-                    hx-target="body"
-                    hx-trigger="every {{ papi_web_config.user_screen_update_delay }}s queue:none"
-                    hx-indicator="#please-wait"
-            ></div>
+        {% if not board %}{# no refresher when the result modal is shown #}
+            {% if rotator %}
+                <div
+                        class="rotator-refresher"
+                        hx-get="{{ url_for('user-rotator', event_uniq_id=user_event.uniq_id, rotator_id=rotator.id, rotator_screen_index=rotator_screen_index + 1) }}"
+                        hx-target="body"
+                        hx-trigger="every {{ rotator.delay }}s"
+                        hx-indicator="#please-wait"
+                ></div>
+            {% else %}
+                <div
+                        class="refresher screen-refresher"
+                        hx-headers='{"If-Modified-Since": "{{ now_http_date }}"}'
+                        hx-get="{{ url_for('user-screen', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id) }}"
+                        hx-target="body"
+                        hx-trigger="every {{ papi_web_config.user_screen_update_delay }}s queue:none"
+                        hx-indicator="#please-wait"
+                ></div>
+            {% endif %}
         {% endif %}
         {{ copyright_script(show=screen.type != 'image') }}
     </div>
@@ -182,11 +184,19 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="modal-footer justify-content-center">
+                        <div class="modal-footer row d-flex align-items-center justify-content-center">
+                            {% if admin_auth and board.result_str %}
+                                <button
+                                        hx-trigger="click"
+                                        class="admin-result-button col-3 ms-auto me-auto btn fs-4 fw-bold p-3"
+                                        hx-delete="{{ url_for('user-delete-result', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id, tournament_id=tournament.id, round=tournament.current_round, board_id=board.id) }}"
+                                        hx-target="body"
+                                        hx-indicator="#please-wait"
+                                >EFFACER LE RÉSULTAT</button>
+                            {% endif %}
                             <button
-                                    type="button"
                                     hx-trigger="click, keyup[key=='Escape'] from:body"
-                                    class="btn btn-secondary fs-3 p-3"
+                                    class="result-button btn-secondary col-3 ms-auto me-auto btn fs-4 p-3"
                                     hx-get="{{ url_for('user-screen', event_uniq_id=user_event.uniq_id, screen_uniq_id=screen.uniq_id) }}"
                                     preload
                                     hx-target="body"

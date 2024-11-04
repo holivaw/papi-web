@@ -24,7 +24,6 @@ from web.controllers.background_controller import BackgroundController
 from web.controllers.user.index_user_controller import IndexUserController
 from web.controllers.user.event_user_controller import EventUserController
 from web.controllers.user.screen_user_controller import ScreenUserController
-from web.controllers.user.screen_set_user_controller import ScreenSetUserController
 from web.controllers.user.tournament_user_controller import CheckInUserController, IllegalMoveUserController, \
     ResultUserController, DownloadUserController
 
@@ -48,7 +47,6 @@ route_handlers: Sequence[ControllerRouterHandler] = [
     IndexUserController,
     EventUserController,
     ScreenUserController,
-    ScreenSetUserController,
     ResultUserController,
     CheckInUserController,
     IllegalMoveUserController,

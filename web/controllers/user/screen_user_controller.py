@@ -14,6 +14,7 @@ from common.logger import get_logger
 from data.family import Family
 from data.rotator import Rotator
 from data.screen import Screen
+from data.screen_set import ScreenSet
 from data.tournament import Tournament
 from data.util import ScreenType
 from web.controllers.user.event_user_controller import EventUserWebContext
@@ -221,7 +222,34 @@ class ScreenUserController(AbstractScreenUserController):
         return self._render_messages(request)
 
     @staticmethod
+    def _user_screen_set_refresh_needed(
+            screen_set: ScreenSet,
+            date: float,
+    ) -> bool:
+        tournament: Tournament = screen_set.tournament
+        if tournament.last_update > date:
+            if tournament.last_update > date:
+                return True
+        if tournament.last_check_in_update > date:
+            return True
+        match screen_set.type:
+            case ScreenType.Boards | ScreenType.Input:
+                if tournament.last_illegal_move_update > date:
+                    return True
+                if tournament.last_result_update > date:
+                    return True
+            case ScreenType.Players:
+                pass
+            case _:
+                raise ValueError(f'type={screen_set.type}')
+        with suppress(FileNotFoundError):
+            if tournament.file.lstat().st_mtime > date:
+                return True
+        return False
+
+    @classmethod
     def _user_screen_refresh_needed(
+            cls,
             web_context: BasicScreenOrFamilyUserWebContext,
             date: float,
     ) -> bool:
@@ -231,8 +259,12 @@ class ScreenUserController(AbstractScreenUserController):
             if web_context.screen.last_update > date:
                 return True
             match web_context.screen.type:
-                case ScreenType.Boards | ScreenType.Input | ScreenType.Players | ScreenType.Image:
+                case ScreenType.Image:
                     pass
+                case ScreenType.Boards | ScreenType.Input | ScreenType.Players:
+                    for screen_set in web_context.screen.screen_sets_by_id.values():
+                        if cls._user_screen_set_refresh_needed(screen_set, date):
+                            return True
                 case ScreenType.Results:
                     results_tournament_ids: list[int] = web_context.screen.results_tournament_ids \
                         if web_context.screen.results_tournament_ids \

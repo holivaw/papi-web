@@ -45,12 +45,20 @@
 # BOARDS/INPUT SCREENS - BOARD/PLAYER ROWS
 ###########################################################
 */
+.input-screen .board-row.editable {
+    cursor: pointer;
+}
 .input-screen .board-row.result-not-set:hover {
     background-color: yellow;
-    cursor: pointer;
 }
 .input-screen .board-row.result-set:hover {
     background-color: #ffffcc;
+}
+.input-screen .board-row.admin.result-not-set:hover {
+    background-color: #ffc500;
+}
+.input-screen .board-row.admin.result-set:hover {
+    background-color: #fff2cd;
 }
 .time-control-modified .minutes,
 .time-control-modified .seconds {
