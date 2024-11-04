@@ -66,7 +66,7 @@ timers:
         text_after: "Remise des prix commencée depuis %s"
 tournaments:
   U08:
-    filename: "bre-jeunes-2024-u08"
+    filename: "bre-jeunes-2024-u8"
     name: "Tournoi U08"
     ffe_id: 62486
     ffe_password: "ABCDEFGHIJ"
