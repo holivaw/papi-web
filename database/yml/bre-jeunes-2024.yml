@@ -274,43 +274,29 @@ screens:
   resultats-petits:
     type: "results"
     timer_uniq_id: "petits"
-    sets:
-      -
-        tournament_uniq_id: "U08"
-      -
-        tournament_uniq_id: "U10"
-      -
-        tournament_uniq_id: "open-b"
+    results_tournament_uniq_ids:
+      - "U08"
+      - "U10"
+      - "open-b"
   resultats-grands:
     type: "results"
     timer_uniq_id: "grands"
-    sets:
-      -
-        tournament_uniq_id: "U12"
-      -
-        tournament_uniq_id: "U14"
-      -
-        tournament_uniq_id: "U16"
-      -
-        tournament_uniq_id: "open-a"
+    results_tournament_uniq_ids:
+      - "U12"
+      - "U14"
+      - "U16"
+      - "open-a"
   resultats-tous:
     type: "results"
     results_limit: 30
-    sets:
-      -
-        tournament_uniq_id: "U08"
-      -
-        tournament_uniq_id: "U10"
-      -
-        tournament_uniq_id: "open-b"
-      -
-        tournament_uniq_id: "U12"
-      -
-        tournament_uniq_id: "U14"
-      -
-        tournament_uniq_id: "U16"
-      -
-        tournament_uniq_id: "open-a"
+    results_tournament_uniq_ids:
+      - "U08"
+      - "U10"
+      - "open-b"
+      - "U12"
+      - "U14"
+      - "U16"
+      - "open-a"
 rotators:
   grands:
     screen_uniq_ids:
