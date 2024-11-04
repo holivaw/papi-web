@@ -120,6 +120,7 @@ class ScreenAdminController(AbstractEventAdminController):
         timer_id: int | None = None
         players_show_unpaired: bool | None = None
         results_limit: int | None = None
+        results_max_age: int | None = None
         results_tournament_ids: list[int] | None = None
         background_image: str | None = None
         background_color: str | None = None
@@ -158,6 +159,11 @@ class ScreenAdminController(AbstractEventAdminController):
                         field = 'results_limit'
                         try:
                             results_limit = WebContext.form_data_to_int(data, field)
+                        except ValueError:
+                            errors[field] = 'Un entier positif est attendu.'
+                        field = 'results_max_age'
+                        try:
+                            results_max_age = WebContext.form_data_to_int(data, field)
                         except ValueError:
                             errors[field] = 'Un entier positif est attendu.'
                         results_tournament_ids = []
@@ -204,6 +210,7 @@ class ScreenAdminController(AbstractEventAdminController):
             timer_id=timer_id,
             players_show_unpaired=players_show_unpaired,
             results_limit=results_limit,
+            results_max_age=results_max_age,
             results_tournament_ids=results_tournament_ids,
             background_image=background_image,
             background_color=background_color,
@@ -333,6 +340,8 @@ class ScreenAdminController(AbstractEventAdminController):
                                 case ScreenType.Results:
                                     data['results_limit'] = WebContext.value_to_form_data(
                                         web_context.admin_screen.stored_screen.results_limit)
+                                    data['results_max_age'] = WebContext.value_to_form_data(
+                                        web_context.admin_screen.stored_screen.results_max_age)
                                     for tournament_id in web_context.admin_event.tournaments_by_id:
                                         data[f'results_tournament_{tournament_id}'] = WebContext.value_to_form_data(
                                             tournament_id

@@ -45,6 +45,9 @@
             <div>
                 Nombre max : {% if screen.results_limit %}{{ screen.results_limit }}{% else %}illimité{% endif %}
             </div>
+            <div>
+                Âge max : {{ screen.results_max_age }} minute{% if screen.results_max_age > 1 %}s{% endif %} {% if not screen.stored_screen.results_max_age %}<span class="fst-italic">(par défaut)</span>{% endif %}
+            </div>
         {% endif %}
         {% if screen.type == 'image' %}
             <div>

@@ -198,7 +198,7 @@ class Screen:
         match self.type:
             case ScreenType.Results:
                 if not self.stored_screen.results_limit:
-                    return 0
+                    return PapiWebConfig.default_results_screen_limit
                 elif self.stored_screen.results_limit and self.stored_screen.results_limit % self.columns > 0:
                     results_limit: int = self.columns * (self.stored_screen.results_limit // self.columns + 1)
                     self.event.add_info(
@@ -207,6 +207,14 @@ class Screen:
                     return results_limit
                 else:
                     return self.stored_screen.results_limit
+            case _:
+                raise ValueError(f'type=[{self.type}]')
+
+    @cached_property
+    def results_max_age(self) -> int:
+        match self.type:
+            case ScreenType.Results:
+                return self.stored_screen.results_max_age or PapiWebConfig.default_results_screen_max_age
             case _:
                 raise ValueError(f'type=[{self.type}]')
 
@@ -233,7 +241,8 @@ class Screen:
     @cached_property
     def _results(self) -> list[Result]:
         with EventDatabase(self.event.uniq_id) as event_database:
-            return event_database.get_stored_results(self.results_limit, self.results_tournament_ids)
+            return event_database.get_stored_results(
+                self.results_limit, self.results_tournament_ids, self.results_max_age)
 
     @property
     def results_lists(self) -> Iterator[list[Result]]:

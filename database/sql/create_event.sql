@@ -131,6 +131,7 @@ CREATE TABLE `screen` (
     `timer_id` INTEGER,
     `players_show_unpaired` INTEGER,
     `results_limit` INTEGER,
+    `results_max_age` INTEGER,
     `results_tournament_ids` TEXT,
     `background_image` TEXT,
     `background_color` TEXT,

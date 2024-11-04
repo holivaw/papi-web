@@ -383,6 +383,7 @@ class EventDatabase(SQLiteDatabase):
                             type: str = screen_dict.get('type', None)
                             players_show_unpaired: bool | None = None
                             results_limit: int | None = None
+                            results_max_age: int | None = None
                             results_tournament_ids: list[int] | None = None
                             background_image: str | None = None
                             background_color: str | None = None
@@ -393,6 +394,7 @@ class EventDatabase(SQLiteDatabase):
                                     players_show_unpaired = screen_dict.get('players_show_unpaired', False)
                                 case 'results':
                                     results_limit: int = screen_dict.get('results_limit', None)
+                                    results_max_age: int = screen_dict.get('results_max_age', None)
                                     if 'results_tournament_uniq_ids' in screen_dict:
                                         self._check_populate_list(
                                             yml_file, f'/screens/{screen_uniq_id}/results_tournament_uniq_ids',
@@ -434,6 +436,7 @@ class EventDatabase(SQLiteDatabase):
                                 timer_id=timer_id,
                                 players_show_unpaired=players_show_unpaired,
                                 results_limit=results_limit,
+                                results_max_age=results_max_age,
                                 results_tournament_ids=results_tournament_ids,
                                 background_image=background_image,
                                 background_color=background_color,
@@ -672,15 +675,16 @@ class EventDatabase(SQLiteDatabase):
             (f'{version.major}.{version.minor}.{version.micro}', time.time()))
         self._version = version
 
-    def _upgrade(self, version: Version):
-        match version.public:
-            case '2.4.1':
-                self.set_version(version)
-                self.commit()
-            case _:
-                raise PapiWebException(
-                    f'La base de données {self.file.name} ne peut être mise à jour en version {version}.')
-        logger.info(f'La base de données {self.file.name} a été mise à jour en version {version}.')
+    def _upgrade(self):
+        target_version: Version = Version('2.4.2')
+        if self.version.public in ['2.4.0', '2.4.1', ]:
+            self._execute('ALTER TABLE `screen` ADD `results_max_age` INTEGER')
+            self.set_version(target_version)
+            self.commit()
+            logger.info(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
+            return
+        raise PapiWebException(
+            f'La base de données {self.file.name} ne peut être mise à jour en version {target_version}.')
 
     def upgrade(self):
         """Upgrades the database version from the stored database version to
@@ -692,9 +696,7 @@ class EventDatabase(SQLiteDatabase):
                 f'Votre version de Papi-web ({papi_web_version})  ne peut pas ouvrir la bases de données '
                 f'{self.file.name} en version {self.version}, veuillez mettre à jour votre version de Papi-web')
         logger.info(f'Mise à jour de la base de données {self.file.name}...')
-        version: Version = Version('2.4.1')
-        if self.version < version:
-            self._upgrade(version)
+        self._upgrade()
 
     def update_stored_event(
             self, stored_event: StoredEvent
@@ -1411,24 +1413,25 @@ class EventDatabase(SQLiteDatabase):
             (tournament_id, ),
         )
 
-    def get_stored_results(self, limit: int, tournament_ids: list[int]) -> list[DataResult]:
+    def get_stored_results(self, limit: int, tournament_ids: list[int], max_age: int) -> list[DataResult]:
+        params: list = [time.time() - max_age * 60]
         if not tournament_ids:
             query: str = ('SELECT '
                           '    * '
                           'FROM `result` '
+                          'WHERE `date` > ?'
                           'ORDER BY `date` DESC')
-            params: tuple = ()
         else:
             query: str = ('SELECT '
                           '    * '
                           'FROM `result` '
-                          f'WHERE {" OR ".join([f"`tournament_id` = ?", ] * len(tournament_ids))} '
+                          f'WHERE `date` > ? AND ({" OR ".join([f"`tournament_id` = ?", ] * len(tournament_ids))}) '
                           'ORDER BY `date` DESC')
-            params: tuple[int] = tuple(tournament_ids)
+            params += tournament_ids
         if limit:
             query += ' LIMIT ?'
-            params = (limit, )
-        self._execute(query, params)
+            params += [limit, ]
+        self._execute(query, tuple(params))
         results: list[DataResult] = []
         for row in self._fetchall():
             try:
@@ -1578,6 +1581,7 @@ class EventDatabase(SQLiteDatabase):
             timer_id=row['timer_id'],
             players_show_unpaired=cls.load_bool_from_database_field(row['players_show_unpaired']),
             results_limit=row['results_limit'],
+            results_max_age=row['results_max_age'],
             results_tournament_ids=cls.load_json_from_database_field(row['results_tournament_ids']),
             background_image=row['background_image'],
             background_color=row['background_color'],
@@ -1621,8 +1625,8 @@ class EventDatabase(SQLiteDatabase):
     ) -> StoredScreen:
         fields: list[str] = [
             'uniq_id', 'name', 'type', 'public', 'players_show_unpaired', 'columns', 'menu_link', 'menu_text', 'menu',
-            'timer_id', 'results_limit', 'results_tournament_ids', 'background_image', 'background_color',
-            'last_update',
+            'timer_id', 'results_limit', 'results_max_age', 'results_tournament_ids', 'background_image',
+            'background_color', 'last_update',
         ]
         params: list = [
             stored_screen.uniq_id, stored_screen.name, stored_screen.type,
@@ -1631,6 +1635,7 @@ class EventDatabase(SQLiteDatabase):
             stored_screen.menu_text if stored_screen.type != 'image' else None,
             stored_screen.menu if stored_screen.type != 'image' else None, stored_screen.timer_id,
             stored_screen.results_limit if stored_screen.type == 'results' else None,
+            stored_screen.results_max_age if stored_screen.type == 'results' else None,
             self.dump_to_json_database_field(stored_screen.results_tournament_ids, [])
             if stored_screen.type == 'results' else None,
             stored_screen.background_image if stored_screen.type == 'image' else None,

@@ -101,6 +101,7 @@ class StoredScreen:
     timer_id: int | None
     players_show_unpaired: bool | None
     results_limit: int | None
+    results_max_age: int | None
     background_image: str | None
     background_color: str | None
     results_tournament_ids: list[int] = field(default_factory=list[int])

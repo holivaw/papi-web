@@ -159,7 +159,7 @@ class PapiWebConfig(metaclass=Singleton):
     def ffe_upload_delay(self) -> int:
         return self.__ffe_upload_delay
 
-    version: Version = Version('2.4.1')
+    version: Version = Version('2.4.2')
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
@@ -313,5 +313,11 @@ class PapiWebConfig(metaclass=Singleton):
                 return '%t (par ordre alpha.)'
 
     default_results_screen_menu_text: str = 'Derniers résultats'
+
+    # The maximum number of results shown on results screens (0 = no limit)
+    default_results_screen_limit: int = 0
+
+    # The age of the oldest results shown on results screens (in minutes)
+    default_results_screen_max_age: int = 60
 
     chessevent_download_url: str = 'https://chessevent.echecs-bretagne.fr/download'
