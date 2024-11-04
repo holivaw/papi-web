@@ -1,3 +1,4 @@
+**[Retour au sommaire de la documentation](README.md)**
 
 GNU Affero General Public License
 =================================
