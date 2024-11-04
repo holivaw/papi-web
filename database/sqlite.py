@@ -673,9 +673,8 @@ class EventDatabase(SQLiteDatabase):
         self._version = version
 
     def _upgrade(self, version: Version):
-        match version:
-            case Version('2.4.1'):
-                self._execute('')
+        match version.public:
+            case '2.4.1':
                 self.set_version(version)
                 self.commit()
             case _:
@@ -690,11 +689,11 @@ class EventDatabase(SQLiteDatabase):
         papi_web_version: Version = PapiWebConfig.version
         if self.version > papi_web_version:
             raise PapiWebException(
-                f'Votre version de Papi-web ({papi_web_version}) '
-                f'ne peut pas ouvrir les bases de données en version {self.version}, '
-                f'veuillez mettre à jour votre version de Papi-web')
-        logger.info('Mise à jour de la base de données...')
-        if self.version < (version := Version('2.4.1')):
+                f'Votre version de Papi-web ({papi_web_version})  ne peut pas ouvrir la bases de données '
+                f'{self.file.name} en version {self.version}, veuillez mettre à jour votre version de Papi-web')
+        logger.info(f'Mise à jour de la base de données {self.file.name}...')
+        version: Version = Version('2.4.1')
+        if self.version < version:
             self._upgrade(version)
 
     def update_stored_event(

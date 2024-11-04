@@ -9,6 +9,7 @@ from pathlib import Path
 from litestar.contrib.htmx.request import HTMXRequest
 
 from common import format_timestamp_date_time
+from common.exception import PapiWebException
 from common.papi_web_config import PapiWebConfig
 from data.event import Event
 from database.sqlite import EventDatabase
@@ -91,7 +92,13 @@ class EventLoader:
 
     @cached_property
     def events_by_id(self) -> dict[str, Event]:
-        return {uniq_id: self.load_event(uniq_id) for uniq_id in self.event_uniq_ids}
+        events_by_id: dict[str, Event] = {}
+        for uniq_id in self.event_uniq_ids:
+            try:
+                events_by_id[uniq_id] = self.load_event(uniq_id)
+            except PapiWebException as pwe:
+                logger.error(pwe)
+        return events_by_id
 
     @cached_property
     def events_sorted_by_name(self) -> list[Event]:
