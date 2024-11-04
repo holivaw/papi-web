@@ -2,6 +2,9 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.1 - 3 novembre 2024
+- Correction d'un bug sur l'affichage des écrans rotatifs
+
 ## Version 2.4.0 - 30 octobre 2024
 - Déclaration de tous les objets par l'interface web (Abandon du format INI)
 - Ajout de la création automatique de tournois d'exemple
