@@ -16,8 +16,7 @@ Un ordinateur sous Windows avec :
 Téléchargez la dernière version de Papi-web, décompressez et installez-la 
 sur l'ordinateur qui jouera le rôle de serveur (sur lequel seront également les fichiers Papi).
 
-- **[Télécharger la dernière version stable (2.4.1)](https://github.com/papi-web-org/papi-web/releases/download/2.4.1/papi-web-2.4.1.zip)**
-- **[Voir toutes les versions](https://github.com/papi-web-org/papi-web/releases)**
+- **[Télécharger la dernière version stable](https://github.com/papi-web-org/papi-web/releases)**
 
 | Fichiers et répertoires                                                | Type                 | Signification                                                                                                                                   |
 |------------------------------------------------------------------------|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
