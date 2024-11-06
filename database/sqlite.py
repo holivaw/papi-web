@@ -608,8 +608,11 @@ class EventDatabase(SQLiteDatabase):
             if self.write:
                 self.upgrade()
             else:
-                with EventDatabase(self.uniq_id, write=True) as event_database:
-                    event_database.upgrade()
+                with EventDatabase(self.uniq_id, write=True):
+                    # reopening the database in r/w mode forces the upgrade
+                    pass
+                # force self.version() to reload the new version number
+                self._version = None
         return self
 
     """ 
