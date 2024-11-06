@@ -674,16 +674,25 @@ class EventDatabase(SQLiteDatabase):
         self._version = version
 
     def _upgrade(self):
-        target_version: Version = Version('2.4.2')
         if self.version.public in ['2.4.0', '2.4.1', ]:
+            target_version: Version = Version('2.4.2')
             self._execute('ALTER TABLE `screen` ADD `results_max_age` INTEGER')
             self._execute('ALTER TABLE `info` DROP COLUMN `allow_results_deletion_on_input_screens`')
             self.set_version(target_version)
             self.commit()
-            logger.info(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
+            logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
+        if self.version.public in ['2.4.2', ]:
+            target_version: Version = Version('2.4.3')
+            self.set_version(target_version)
+            self.commit()
+            logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
+        final_target_version: Version = Version('2.4.3')
+        if self.version == final_target_version:
+            logger.info(f'La base de données {self.file.name} a été mise à jour en version {final_target_version}.')
             return
         raise PapiWebException(
-            f'La base de données {self.file.name} ne peut être mise à jour en version {target_version}.')
+            f'La base de données {self.file.name} ({self.version}) ne peut être mise à jour en version '
+            f'{final_target_version}.')
 
     def upgrade(self):
         """Upgrades the database version from the stored database version to

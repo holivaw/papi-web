@@ -2,6 +2,9 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.3 - 6 novembre 2024
+- Correction d'un bug sur la mise à jour des bases de données
+
 ## Version 2.4.2 - 4 novembre 2024
 - Optimisation des temps de rafraichissement des pages de saisie des résultats
 - Ajout de la possibilité d'effacer ou rectifier un résultat mal rentré sur les pages de saisie (administration)
