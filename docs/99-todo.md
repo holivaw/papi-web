@@ -4,6 +4,7 @@
 
 ## Fonctionnalités demandées par les utilisateur·ices
 
+- [ ] Pointage de tou·tes les joueur·euses de l'évènement sur un même écran (TA)
 - [ ] Affichage des appariements par origine (club) (CJ)
 - [ ] Affichage automatique du classement et grille américaine après la saisie du dernier résultat d'une ronde (HB)
 - [ ] Envoi des appariements aux joueur·euses par mél et texto (PL)
