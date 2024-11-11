@@ -230,7 +230,7 @@ class Family:
         if self._calculate_screens():
             for family_index in range(1, self.calculated_parts + 1):
                 screen: Screen = Screen(self.event, family=self, family_part=family_index)
-                self.screens_by_uniq_id[screen.uniq_id] = screen
+                screens_by_uniq_id[screen.uniq_id] = screen
         return screens_by_uniq_id
 
     @cached_property
