@@ -40,6 +40,11 @@
         <div class="{% if not family.timer %}text-secondary{% endif %}">
             Chronomètre : {% if family.timer %}<i class="bi-clock-fill"></i> {% if admin_event.timers_by_id|length > 1 %}{{ family.timer.uniq_id }}{% else %}Oui{% endif %}{% else %}Non{% endif %}
         </div>
+        {% if family.type == 'input' %}
+            <div>
+                Bouton de sortie d'écran : {% if family.input_exit_button %}Oui{% else %}Non{% endif %} {% if family.stored_family.input_exit_button is none %}(par défaut){% endif %}
+            </div>
+        {% endif %}
         {% if family.type == 'players' %}
             <div>
                 Non apparié·es : {% if family.players_show_unpaired %}Oui{% else %}Non{% endif %} {% if family.stored_family.players_show_unpaired is none %}(par défaut){% endif %}

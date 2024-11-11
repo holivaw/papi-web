@@ -2,33 +2,38 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.4 - 11 novembre 2024
+- Ajout d'une fenêtre modale pour le pointage des joueur·euses (#46)
+- Ajout de la possibilité de cacher les boutons de sortie des écrans de saisie
+
 ## Version 2.4.3 - 6 novembre 2024
-- Correction d'un bug sur la mise à jour des bases de données
+- Correction d'un bug sur la mise à jour des bases de données (#43)
 
 ## Version 2.4.2 - 4 novembre 2024
 - Optimisation des temps de rafraichissement des pages de saisie des résultats
-- Ajout de la possibilité d'effacer ou rectifier un résultat mal rentré sur les pages de saisie (administration)
-- Ajout d'un paramètre pour les écrans de résultats pour limiter l'âge des résultats affichés
+- Ajout de la possibilité d'effacer ou rectifier un résultat mal rentré sur les pages de saisie (#29)
+- Ajout d'un paramètre pour les écrans de résultats pour limiter l'âge des résultats affichés (#27)
 
 ## Version 2.4.1 - 3 novembre 2024
-- Correction d'un bug sur l'affichage des écrans rotatifs
+- Correction d'un bug sur l'affichage des écrans rotatifs (#41)
 
 ## Version 2.4.0 - 30 octobre 2024
-- Déclaration de tous les objets par l'interface web (Abandon du format INI)
+- Abandon du format INI, déclaration de tous les objets par l'interface web (#37)
 - Ajout de la création automatique de tournois d'exemple
-- Fluidification de la navigation (HTMX)
+- Fluidification de la navigation (HTMX) (#31)
 - Masquage de toutes les URLs de l'application
 - Ajout de la possibilité (configurable) de supprimer un résultat mal rentré
 - Ajout de la possibilité de spécifier des tables fixes sur les écrans d'appariements
-- Ajout de la possibilité de spécifier les tournois affichés sur les écrans de résultats
+- Ajout de la possibilité de spécifier les tournois affichés sur les écrans de résultats (#27)
 - Affichage du numéro de ronde sur les écrans de résultats
 - Simplification de la page d'accueil de l'interface web
 - Présentation des évènements et des écrans à l'aide de tuiles
 - Amélioration de l'authentification sur les écrans de saisie
 - Ajout de la possibilité de restreindre la visibilité de certains évènements, certains écrans, certaines familles d'écrans, certains écrans rotatifs
+- Ajout de la possibilité d'utiliser plusieurs chronomètres (#26) 
 - Ajout d'écrans fixes permettant d'insérer des images dans les écrans rotatifs
 - Suppression de la personnalisation CSS et remplacement par une image et une couleur de fond
-- Contournement d'un bug du site fédéral sur l'affichage des classements (suppression des forfaits en l'absence d'appariement)
+- Contournement d'un bug du site fédéral sur l'affichage des classements (suppression des forfaits en l'absence d'appariement) (#14)
 
 ## Version 2.3.2 - 15 avril 2024
 - Correction d'un problème d'affichage des appariements par ordre alphabétique
@@ -48,7 +53,7 @@
 - Correction d'un bug de configuration
 
 ## Version 2.2.0 - 27 mars 2024
-- Allègement du moteur web (remplacement de Django par Litestar)
+- Allègement du moteur web (remplacement de Django par Litestar) (#24)
 - Affichage du pointage des joueur·euses
 - Enregistrement des coups illégaux (option `record_illegal_moves`)
 - Mise à jour de l'URL de ChessEvent suite au déménagement de la plateforme

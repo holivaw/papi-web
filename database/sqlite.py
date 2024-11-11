@@ -370,14 +370,15 @@ class EventDatabase(SQLiteDatabase):
                             self._check_populate_dict(
                                 yml_file, f'/screens/{screen_uniq_id}', screen_dict,
                                 mandatory_fields=['type', ],
-                                optional_fields=['public', 'timer_uniq_id', 'players_show_unpaired',
-                                                 'results_limit', 'results_tournament_uniq_ids', 'background_image',
-                                                 'background_color', 'name', 'columns', 'menu_link', 'menu_text',
-                                                 'menu', 'sets'])
+                                optional_fields=['public', 'timer_uniq_id', 'input_exit_button',
+                                                 'players_show_unpaired', 'results_limit',
+                                                 'results_tournament_uniq_ids', 'background_image', 'background_color',
+                                                 'name', 'columns', 'menu_link', 'menu_text', 'menu', 'sets'])
                             assert screen_dict, f'{yml_file.name}: dictionary screens.{screen_uniq_id} is empty'
                             timer_uniq_id: str | None = screen_dict.get('timer_uniq_id', None)
                             timer_id: int = timer_ids_by_uniq_id[timer_uniq_id] if timer_uniq_id else None
                             type: str = screen_dict.get('type', None)
+                            input_exit_button: bool | None = None
                             players_show_unpaired: bool | None = None
                             results_limit: int | None = None
                             results_max_age: int | None = None
@@ -385,8 +386,10 @@ class EventDatabase(SQLiteDatabase):
                             background_image: str | None = None
                             background_color: str | None = None
                             match type:
-                                case 'boards' | 'input':
+                                case 'boards':
                                     pass
+                                case 'input':
+                                    input_exit_button = screen_dict.get('input_exit_button', False)
                                 case 'players':
                                     players_show_unpaired = screen_dict.get('players_show_unpaired', False)
                                 case 'results':
@@ -431,6 +434,7 @@ class EventDatabase(SQLiteDatabase):
                                 menu_text=menu_text,
                                 menu=menu,
                                 timer_id=timer_id,
+                                input_exit_button=input_exit_button,
                                 players_show_unpaired=players_show_unpaired,
                                 results_limit=results_limit,
                                 results_max_age=results_max_age,
@@ -467,7 +471,7 @@ class EventDatabase(SQLiteDatabase):
                             self._check_populate_dict(
                                 yml_file, f'/families/{family_uniq_id}', family_dict,
                                 mandatory_fields=['type', ],
-                                optional_fields=['public', 'tournament_uniq_id', 'timer_uniq_id',
+                                optional_fields=['public', 'tournament_uniq_id', 'timer_uniq_id', 'input_exit_button',
                                                  'players_show_unpaired', 'name', 'columns', 'menu_link', 'menu_text',
                                                  'menu', 'first', 'last', 'parts', 'number', ])
                             timer_uniq_id: str | None = family_dict.get('timer_uniq_id', None)
@@ -476,10 +480,13 @@ class EventDatabase(SQLiteDatabase):
                             tournament_uniq_id: str = family_dict.get('tournament_uniq_id', None)
                             tournament_id: int = tournament_ids_by_uniq_id[
                                 tournament_uniq_id] if tournament_uniq_id else None
+                            input_exit_button: bool | None = None
                             players_show_unpaired: bool | None = None
                             match type:
-                                case 'boards' | 'input':
+                                case 'boards':
                                     pass
+                                case 'input':
+                                    input_exit_button = family_dict.get('input_exit_button', False)
                                 case 'players':
                                     players_show_unpaired = family_dict.get('players_show_unpaired', False)
                                 case _:
@@ -503,6 +510,7 @@ class EventDatabase(SQLiteDatabase):
                                 menu_text=menu_text,
                                 menu=menu,
                                 timer_id=timer_id,
+                                input_exit_button=input_exit_button,
                                 players_show_unpaired=players_show_unpaired,
                                 first=family_dict.get('first', None),
                                 last=family_dict.get('last', None),
@@ -681,12 +689,14 @@ class EventDatabase(SQLiteDatabase):
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
-        if self.version.public in ['2.4.2', ]:
-            target_version: Version = Version('2.4.3')
+        if self.version.public in ['2.4.2', '2.4.3', ]:
+            target_version: Version = Version('2.4.4')
+            self._execute('ALTER TABLE `screen` ADD `input_exit_button` INTEGER')
+            self._execute('ALTER TABLE `family` ADD `input_exit_button` INTEGER')
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
-        final_target_version: Version = Version('2.4.3')
+        final_target_version: Version = Version('2.4.4')
         if self.version == final_target_version:
             logger.info(f'La base de données {self.file.name} a été mise à jour en version {final_target_version}.')
             return
@@ -1470,6 +1480,7 @@ class EventDatabase(SQLiteDatabase):
             type=row['type'],
             public=cls.load_bool_from_database_field(row['public']),
             tournament_id=row['tournament_id'],
+            input_exit_button=cls.load_bool_from_database_field(row['input_exit_button']),
             players_show_unpaired=cls.load_bool_from_database_field(row['players_show_unpaired']),
             columns=row['columns'],
             menu_link=cls.load_bool_from_database_field(row['menu_link']),
@@ -1505,13 +1516,14 @@ class EventDatabase(SQLiteDatabase):
     ) -> StoredFamily:
         fields: list[str] = [
             'uniq_id', 'name', 'type', 'public', 'tournament_id', 'columns', 'menu_link', 'menu_text', 'menu',
-            'timer_id', 'players_show_unpaired', 'first', 'last', 'parts', 'number', 'last_update',
+            'timer_id', 'input_exit_button', 'players_show_unpaired', 'first', 'last', 'parts', 'number', 'last_update',
         ]
         params: list = [
             stored_family.uniq_id, stored_family.name, stored_family.type, stored_family.public,
             stored_family.tournament_id, stored_family.columns, stored_family.menu_link, stored_family.menu_text,
-            stored_family.menu, stored_family.timer_id, stored_family.players_show_unpaired, stored_family.first,
-            stored_family.last, stored_family.parts, stored_family.number, time.time(),
+            stored_family.menu, stored_family.timer_id, stored_family.input_exit_button,
+            stored_family.players_show_unpaired, stored_family.first, stored_family.last, stored_family.parts,
+            stored_family.number, time.time(),
         ]
         if stored_family.id is None:
             protected_fields = [f"`{f}`" for f in fields]
@@ -1585,6 +1597,7 @@ class EventDatabase(SQLiteDatabase):
             menu_text=row['menu_text'],
             menu=row['menu'],
             timer_id=row['timer_id'],
+            input_exit_button=cls.load_bool_from_database_field(row['input_exit_button']),
             players_show_unpaired=cls.load_bool_from_database_field(row['players_show_unpaired']),
             results_limit=row['results_limit'],
             results_max_age=row['results_max_age'],
@@ -1630,13 +1643,14 @@ class EventDatabase(SQLiteDatabase):
             self, stored_screen: StoredScreen,
     ) -> StoredScreen:
         fields: list[str] = [
-            'uniq_id', 'name', 'type', 'public', 'players_show_unpaired', 'columns', 'menu_link', 'menu_text', 'menu',
-            'timer_id', 'results_limit', 'results_max_age', 'results_tournament_ids', 'background_image',
-            'background_color', 'last_update',
+            'uniq_id', 'name', 'type', 'public', 'input_exit_button', 'players_show_unpaired', 'columns', 'menu_link',
+            'menu_text', 'menu', 'timer_id', 'results_limit', 'results_max_age', 'results_tournament_ids',
+            'background_image', 'background_color', 'last_update',
         ]
         params: list = [
             stored_screen.uniq_id, stored_screen.name, stored_screen.type,
-            stored_screen.public, stored_screen.players_show_unpaired if stored_screen.type == 'players' else None,
+            stored_screen.public, stored_screen.input_exit_button if stored_screen.type == 'input' else None,
+            stored_screen.players_show_unpaired if stored_screen.type == 'players' else None,
             stored_screen.columns, stored_screen.menu_link if stored_screen.type != 'image' else None,
             stored_screen.menu_text if stored_screen.type != 'image' else None,
             stored_screen.menu if stored_screen.type != 'image' else None, stored_screen.timer_id,

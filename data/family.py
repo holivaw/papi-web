@@ -103,6 +103,12 @@ class Family:
         return self.event.timers_by_id[self.timer_id] if self.timer_id else None
 
     @property
+    def input_exit_button(self) -> bool:
+        if self.stored_family.input_exit_button is None:
+            return PapiWebConfig.default_input_exit_button
+        return self.stored_family.input_exit_button
+
+    @property
     def players_show_unpaired(self) -> bool:
         if self.stored_family.players_show_unpaired is None:
             return PapiWebConfig.default_players_show_unpaired
@@ -174,12 +180,7 @@ class Family:
             case ScreenType.Players:
                 players_instead_of_boards = False
                 if self.tournament.current_round:
-                    players_show_unpaired: bool
-                    if self.players_show_unpaired is None:
-                        players_show_unpaired = PapiWebConfig.default_players_show_unpaired
-                    else:
-                        players_show_unpaired = self.players_show_unpaired
-                    if players_show_unpaired:
+                    if self.players_show_unpaired:
                         total_items_number = len(self.tournament.players_by_name_with_unpaired)
                     else:
                         total_items_number = len(self.tournament.players_by_name_without_unpaired)

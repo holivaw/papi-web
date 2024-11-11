@@ -159,7 +159,7 @@ class PapiWebConfig(metaclass=Singleton):
     def ffe_upload_delay(self) -> int:
         return self.__ffe_upload_delay
 
-    version: Version = Version('2.4.3')
+    version: Version = Version('2.4.4')
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
@@ -251,6 +251,8 @@ class PapiWebConfig(metaclass=Singleton):
             2: 5,
             3: 10,
         }
+
+    default_input_exit_button: bool = True
 
     default_players_show_unpaired: bool = True
 

@@ -118,6 +118,7 @@ class ScreenAdminController(AbstractEventAdminController):
         menu: str | None = None
         columns: int | None = None
         timer_id: int | None = None
+        input_exit_button: bool | None = None
         players_show_unpaired: bool | None = None
         results_limit: int | None = None
         results_max_age: int | None = None
@@ -151,8 +152,10 @@ class ScreenAdminController(AbstractEventAdminController):
                 except ValueError:
                     errors[field] = 'Un entier positif est attendu.'
                 match web_context.admin_screen.type:
-                    case ScreenType.Boards | ScreenType.Input:
+                    case ScreenType.Boards:
                         pass
+                    case ScreenType.Input:
+                        input_exit_button = WebContext.form_data_to_bool(data, 'input_exit_button')
                     case ScreenType.Players:
                         players_show_unpaired = WebContext.form_data_to_bool(data, 'players_show_unpaired')
                     case ScreenType.Results:
@@ -208,6 +211,7 @@ class ScreenAdminController(AbstractEventAdminController):
             menu_text=menu_text,
             menu=menu,
             timer_id=timer_id,
+            input_exit_button=input_exit_button,
             players_show_unpaired=players_show_unpaired,
             results_limit=results_limit,
             results_max_age=results_max_age,
@@ -332,8 +336,11 @@ class ScreenAdminController(AbstractEventAdminController):
                             data['timer_id'] = WebContext.value_to_form_data(
                                 web_context.admin_screen.stored_screen.timer_id)
                             match web_context.admin_screen.type:
-                                case ScreenType.Boards | ScreenType.Input:
+                                case ScreenType.Boards:
                                     pass
+                                case ScreenType.Input:
+                                    data['input_exit_button'] = WebContext.value_to_form_data(
+                                        web_context.admin_screen.stored_screen.input_exit_button)
                                 case ScreenType.Players:
                                     data['players_show_unpaired'] = WebContext.value_to_form_data(
                                         web_context.admin_screen.stored_screen.players_show_unpaired)
@@ -371,6 +378,7 @@ class ScreenAdminController(AbstractEventAdminController):
                 template_context |= {
                     'screen_type_options': cls._get_screen_type_options(family_screens_only=False),
                     'timer_options': cls._get_timer_options(web_context.admin_event),
+                    'input_exit_button_options': cls._get_input_exit_button_options(),
                     'players_show_unpaired_options': cls._get_players_show_unpaired_options(),
                     'modal': modal,
                     'action': action,

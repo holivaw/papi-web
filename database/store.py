@@ -99,6 +99,7 @@ class StoredScreen:
     menu_text: str | None
     menu: str | None
     timer_id: int | None
+    input_exit_button: bool | None
     players_show_unpaired: bool | None
     results_limit: int | None
     results_max_age: int | None
@@ -123,6 +124,7 @@ class StoredFamily:
     menu_text: str
     menu: str
     timer_id: int | None
+    input_exit_button: bool | None
     players_show_unpaired: bool | None
     first: int | None
     last: int | None

@@ -4,7 +4,7 @@ Papi-web, programme de saisie des résultats dans Papi et de mise en ligne des r
 
 Papi-web - © Projet Papi-web 2013-2024 - https://github.com/papi-web-org/papi-web ([copyright](COPYRIGHT.md))
 
-- **[Télécharger la dernière version stable (2.4.3)](https://github.com/papi-web-org/papi-web/releases/download/2.4.3/papi-web-2.4.3.zip)**
+- **[Télécharger la dernière version stable (2.4.4)](https://github.com/papi-web-org/papi-web/releases/download/2.4.4/papi-web-2.4.4.zip)**
 
 ## Généralités
 

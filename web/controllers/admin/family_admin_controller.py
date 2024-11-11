@@ -102,6 +102,7 @@ class FamilyAdminController(AbstractEventAdminController):
         menu: str | None = None
         columns: int | None = None
         timer_id: int | None = None
+        input_exit_button: bool | None = None
         players_show_unpaired: bool | None = None
         tournament_id: int | None = None
         first: int | None = None
@@ -165,8 +166,10 @@ class FamilyAdminController(AbstractEventAdminController):
                     errors['first'] = error
                     errors['last'] = error
                 match type:
-                    case 'boards' | 'input':
+                    case 'boards':
                         pass
+                    case 'input':
+                        input_exit_button = WebContext.form_data_to_bool(data, 'input_exit_button')
                     case 'players':
                         players_show_unpaired = WebContext.form_data_to_bool(data, 'players_show_unpaired')
                     case _:
@@ -209,6 +212,7 @@ class FamilyAdminController(AbstractEventAdminController):
             menu_text=menu_text,
             menu=menu,
             timer_id=timer_id,
+            input_exit_button=input_exit_button,
             players_show_unpaired=players_show_unpaired,
             first=first,
             last=last,
@@ -267,7 +271,11 @@ class FamilyAdminController(AbstractEventAdminController):
                             data['first'] = WebContext.value_to_form_data(web_context.admin_family.stored_family.first)
                             data['last'] = WebContext.value_to_form_data(web_context.admin_family.stored_family.last)
                             match web_context.admin_family.type:
-                                case ScreenType.Boards | ScreenType.Input:
+                                case ScreenType.Boards:
+                                    pass
+                                case ScreenType.Input:
+                                    data['input_exit_button'] = WebContext.value_to_form_data(
+                                        web_context.admin_family.stored_family.input_exit_button)
                                     pass
                                 case ScreenType.Players:
                                     data['players_show_unpaired'] = WebContext.value_to_form_data(
@@ -297,6 +305,7 @@ class FamilyAdminController(AbstractEventAdminController):
                     'tournament_options': web_context.get_tournament_options(),
                     'screen_type_options': cls._get_screen_type_options(family_screens_only=True),
                     'timer_options': cls._get_timer_options(web_context.admin_event),
+                    'input_exit_button_options': cls._get_input_exit_button_options(),
                     'players_show_unpaired_options': cls._get_players_show_unpaired_options(),
                     'modal': modal,
                     'action': action,

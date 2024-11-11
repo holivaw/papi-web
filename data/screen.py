@@ -169,6 +169,20 @@ class Screen:
         return sorted(self.screen_sets_by_id.values(), key=lambda screen_set: screen_set.order)
 
     @property
+    def input_exit_button(self) -> bool:
+        match self.type:
+            case ScreenType.Input:
+                if self.stored_screen:
+                    if self.stored_screen.input_exit_button is not None:
+                        return self.stored_screen.input_exit_button
+                    else:
+                        return PapiWebConfig.default_input_exit_button
+                else:
+                    return self.family.input_exit_button
+            case _:
+                raise ValueError(f'type=[{self.type}]')
+
+    @property
     def players_show_unpaired(self) -> bool:
         match self.type:
             case ScreenType.Boards | ScreenType.Input:

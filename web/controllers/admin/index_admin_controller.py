@@ -112,6 +112,16 @@ class AbstractAdminController(AbstractController):
         return options
 
     @staticmethod
+    def _get_input_exit_button_options() -> dict[str, str]:
+        options: dict[str, str] = {
+            '': '-',
+            'on': 'Le bouton de sortie d\'écran est affiché',
+            'off': 'Le bouton de sortie d\'écran n\'est pas affiché',
+        }
+        options[''] = f'Par défaut ({options["on" if PapiWebConfig.default_input_exit_button else "off"]})'
+        return options
+
+    @staticmethod
     def _get_players_show_unpaired_options() -> dict[str, str]:
         options: dict[str, str] = {
             '': '-',
