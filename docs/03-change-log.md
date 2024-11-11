@@ -2,6 +2,10 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.5 - 12 novembre 2024
+- Optimisation des accès aux bases Access (#48)
+- Réduction du trafic client/serveur (#49)
+
 ## Version 2.4.4 - 11 novembre 2024
 - Ajout d'une fenêtre modale pour le pointage des joueur·euses (#46)
 - Ajout de la possibilité de cacher les boutons de sortie des écrans de saisie
