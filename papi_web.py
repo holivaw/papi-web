@@ -6,8 +6,6 @@ import os
 from chessevent.chessevent_engine import ChessEventEngine
 from common.papi_web_config import PapiWebConfig
 from ffe.ffe_engine import FFEEngine
-from test.stress_engine import StressEngine
-from test.test_engine import TestEngine
 from web.server_engine import ServerEngine
 from common.logger import get_logger
 
@@ -21,8 +19,6 @@ try:
     parser.add_argument('-c', '--chessevent', help='download Papi files from Chess Event', action='store_true')
     # undocumented feature to start from a different folder and work with different configurations
     parser.add_argument('--path', default='.')
-    parser.add_argument('-t', '--test', help='test the configuration', action='store_true')
-    parser.add_argument('--stress', )
     args = parser.parse_args()
     os.chdir(args.path)
 
@@ -32,10 +28,6 @@ try:
         fe: FFEEngine = FFEEngine()
     elif args.chessevent:
         ce: ChessEventEngine = ChessEventEngine()
-    elif args.test:
-        te: TestEngine = TestEngine()
-    elif args.stress:
-        se: StressEngine = StressEngine(args.stress)
     else:
         parser.print_help(sys.stderr)
         logger.error('Ce programme ne devrait pas être lancé directement, utiliser les scripts '
