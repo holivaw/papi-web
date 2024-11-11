@@ -7,7 +7,7 @@ assignees: Amaras
 
 ---
 
-## Descirption du bug
+## Description du bug
 Une description claire et concise du bug
 
 ## Comment reproduire le bug
