@@ -148,7 +148,7 @@ class AbstractIndexAdminController(AbstractAdminController):
         elif uniq_id.find('/') != -1:
             errors['uniq_id'] = "le caractère « / » n\'est pas autorisé"
         else:
-            event_uniq_ids: list[str] = EventLoader.get(request=request, lazy_load=True).event_uniq_ids
+            event_uniq_ids: list[str] = EventLoader.get(request=request).event_uniq_ids
             if uniq_id in event_uniq_ids:
                 errors['uniq_id'] = f'L\'évènement [{uniq_id}] existe déjà.'
         name: str | None = WebContext.form_data_to_str(data, 'name')
@@ -197,7 +197,7 @@ class AbstractIndexAdminController(AbstractAdminController):
         web_context: AdminWebContext = AdminWebContext(request, data=None, admin_tab=admin_tab)
         if web_context.error:
             return web_context.error
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         archive_loader: ArchiveLoader = ArchiveLoader.get(request=request)
         nav_tabs: dict[str, dict[str, Any]] = {
             'current_events': {

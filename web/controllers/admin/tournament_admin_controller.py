@@ -302,7 +302,7 @@ class TournamentAdminController(AbstractEventAdminController):
             return self._admin_event_tournaments_render(
                 request, event_uniq_id=event_uniq_id, modal='tournament', action=action, tournament_id=tournament_id,
                 data=data, errors=stored_tournament.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=False)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with (EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database):
             match action:
                 case 'create':

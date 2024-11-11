@@ -44,7 +44,7 @@ class ActionSelector(metaclass=Singleton):
         return tournaments
 
     def run(self, event_uniq_id: str) -> bool:
-        event_loader: EventLoader = EventLoader.get(request=None, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=None)
         event: Event = event_loader.reload_event(event_uniq_id)
         logger.info('Évènement : %s', event.name)
         tournaments = self.__get_qualified_tournaments(event)

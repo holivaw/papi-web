@@ -218,7 +218,7 @@ class RotatorAdminController(AbstractEventAdminController):
             return self._admin_event_rotators_render(
                 request, event_uniq_id=event_uniq_id, modal='rotator', action=action, rotator_id=rotator_id,
                 data=data, errors=stored_rotator.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=False)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database:
             match action:
                 case 'create':
@@ -277,7 +277,7 @@ class RotatorAdminController(AbstractEventAdminController):
                 request,
                 f'L\'écran rotatif [{web_context.admin_rotator.uniq_id}] a été dupliqué '
                 f'([{stored_rotator.uniq_id}]).')
-        EventLoader.get(request=request, lazy_load=True).clear_cache(event_uniq_id)
+        EventLoader.get(request=request).clear_cache(event_uniq_id)
         return self._admin_event_rotators_render(
             request, event_uniq_id=event_uniq_id, modal='rotator', action='update',
             rotator_id=stored_rotator.id)

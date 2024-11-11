@@ -362,7 +362,7 @@ class FamilyAdminController(AbstractEventAdminController):
             return self._admin_event_families_render(
                 request, event_uniq_id=event_uniq_id, modal='family', action=action, family_id=family_id, data=data,
                 errors=stored_family.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=False)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with (EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database):
             match action:
                 case 'create':

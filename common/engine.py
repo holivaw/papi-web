@@ -30,7 +30,7 @@ class Engine:
             raise pe
         logger.info('Reading configuration file...')
         self._check_version()
-        if not EventLoader.get(request=None, lazy_load=True).event_uniq_ids:
+        if not EventLoader.get(request=None).event_uniq_ids:
             logger.info('Aucune base de données trouvée, création des bases de données d\'exemple')
             for event_id in (
                 file.stem for file in PapiWebConfig.database_yml_path.glob(f'*.{PapiWebConfig.yml_ext}')

@@ -16,7 +16,7 @@ class EventSelector(metaclass=Singleton):
 
     @staticmethod
     def run() -> bool:
-        events: list[Event] = EventLoader.get(request=None, lazy_load=True).events_with_tournaments_sorted_by_name
+        events: list[Event] = EventLoader.get(request=None).events_with_tournaments_sorted_by_name
         if not events:
             logger.error('Aucun évènement trouvé')
             return False

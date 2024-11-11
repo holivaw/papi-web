@@ -337,7 +337,7 @@ class TimerAdminController(AbstractEventAdminController):
             return self._admin_event_timers_render(
                 request, event_uniq_id=event_uniq_id, modal='timer', action=action, timer_id=timer_id,
                 data=data, errors=stored_timer.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with (EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database):
             match action:
                 case 'create':
@@ -483,7 +483,7 @@ class TimerAdminController(AbstractEventAdminController):
                 raise ValueError(f'action=[{action}]')
         if web_context.error:
             return web_context.error
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         match action:
             case 'delete':
                 if len(web_context.admin_timer.timer_hours_by_id) <= 1:

@@ -1,3 +1,4 @@
+import fnmatch
 from collections.abc import Iterator
 from functools import cached_property
 from logging import Logger
@@ -40,24 +41,24 @@ class Screen:
                    f'screen={stored_screen}, family={family}, family_part={family_part}'
         self.event: 'Event' = event
         self.stored_screen: StoredScreen | None = stored_screen
-        self.menu_screens: list[Self] = []
         self.family: 'NewFamily | None' = family
         self.family_part: int | None = family_part
-        self.screen_sets_by_id: dict[int, ScreenSet] = {}
-        self._build_screen_sets()
 
-    def _build_screen_sets(self):
+    @cached_property
+    def screen_sets_by_id(self) -> dict[int | None, ScreenSet]:
         match self.type:
             case ScreenType.Boards | ScreenType.Input | ScreenType.Players:
                 if self.stored_screen:
-                    for stored_screen_set in self.stored_screen.stored_screen_sets:
-                        screen_set: ScreenSet = ScreenSet(self, stored_screen_set=stored_screen_set)
-                        self.screen_sets_by_id[screen_set.id] = screen_set
+                    return {
+                        stored_screen_set.id: ScreenSet(self, stored_screen_set=stored_screen_set)
+                        for stored_screen_set in self.stored_screen.stored_screen_sets
+                    }
                 else:
-                    screen_set: ScreenSet = ScreenSet(self, family=self.family, family_part=self.family_part)
-                    self.screen_sets_by_id[screen_set.id] = screen_set
+                    return {
+                        self.id: ScreenSet(self, family=self.family, family_part=self.family_part)
+                    }
             case ScreenType.Results | ScreenType.Image:
-                pass
+                return {}
             case _:
                 raise ValueError(f'type=[{self.type}]')
 
@@ -150,6 +151,78 @@ class Screen:
                 return self.stored_screen.menu_text or PapiWebConfig.default_results_screen_menu_text
             case _:
                 raise ValueError(f'type=[{self.type}]')
+
+    def _menu_screens(self, admin: bool) -> list[Self]:
+        menu_screens: list[Self] = []
+        if self.menu is not None:
+            for menu_part in map(str.strip, self.menu.split(',')):
+                if not menu_part:
+                    continue
+                if menu_part == '@boards':
+                    part_menu_screens: list[Screen] = self.event.boards_screens_sorted_by_uniq_id \
+                        if admin else self.event.public_boards_screens_sorted_by_uniq_id
+                    if not part_menu_screens:
+                        logger.warning(
+                            f'Il n\'y a pas d\'écran de type [boards] pour le menu de l\'écran [{self.uniq_id}]')
+                    else:
+                        menu_screens += part_menu_screens
+                    continue
+                if menu_part == '@input':
+                    part_menu_screens: list[Screen] = self.event.input_screens_sorted_by_uniq_id \
+                        if admin else self.event.public_input_screens_sorted_by_uniq_id
+                    if not part_menu_screens:
+                        logger.warning(
+                            f'Il n\'y a pas d\'écran de type [input] pour le menu de l\'écran [{self.uniq_id}]')
+                    else:
+                        menu_screens += part_menu_screens
+                    continue
+                if menu_part == '@players':
+                    part_menu_screens: list[Screen] = self.event.players_screens_sorted_by_uniq_id \
+                        if admin else self.event.public_players_screens_sorted_by_uniq_id
+                    if not part_menu_screens:
+                        logger.warning(
+                            f'Il n\'y a pas d\'écran de type [players] pour le menu de l\'écran [{self.uniq_id}]')
+                    else:
+                        menu_screens += part_menu_screens
+                    continue
+                if menu_part == '@results':
+                    part_menu_screens: list[Screen] = self.event.results_screens_sorted_by_uniq_id \
+                        if admin else self.event.public_results_screens_sorted_by_uniq_id
+                    if not part_menu_screens:
+                        logger.warning(
+                            f'Il n\'y a pas d\'écran de type [results] pour le menu de l\'écran [{self.uniq_id}]')
+                    else:
+                        menu_screens += part_menu_screens
+                    continue
+                if menu_part == '@family':
+                    if self.family_id is None:
+                        logger.warning(f'Le motif [{menu_part}] ne peut être utilisé que pour les familles d\'écrans')
+                    else:
+                        menu_screens += self.event.families_by_id[self.family_id].screens_by_uniq_id.values()
+                    continue
+                if '*' in menu_part:
+                    menu_part_screen_uniq_ids: list[str] = fnmatch.filter(
+                        self.event.screens_by_uniq_id.keys(), menu_part)
+                    if menu_part_screen_uniq_ids:
+                        logger.warning(f'Le motif [{menu_part}] ne correspond à aucun écran')
+                    else:
+                        menu_screens += [
+                            self.event.screens_by_uniq_id[screen_uniq_id] for screen_uniq_id in menu_part_screen_uniq_ids
+                        ]
+                    continue
+                if menu_part in self.event.screens_by_uniq_id:
+                    menu_screens.append(self.event.screens_by_uniq_id[menu_part])
+                else:
+                    logger.warning(f'L\'écran [{menu_part}] n\'existe pas')
+        return menu_screens
+
+    @cached_property
+    def public_menu_screens(self) -> list[Self]:
+        return self._menu_screens(False)
+
+    @cached_property
+    def admin_menu_screens(self) -> list[Self]:
+        return self._menu_screens(True)
 
     @property
     def menu(self) -> str:

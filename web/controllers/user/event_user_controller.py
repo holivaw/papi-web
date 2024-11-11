@@ -41,7 +41,7 @@ class EventUserWebContext(UserWebContext):
             self._redirect_error(f'L\'évènement n\'est pas spécifie')
             return
         try:
-            self.user_event = EventLoader.get(request=self.request, lazy_load=False).load_event(event_uniq_id)
+            self.user_event = EventLoader.get(request=self.request).load_event(event_uniq_id)
             if self.user_event.public or self.admin_auth:
                 self.user_event_tab = user_event_tab
                 return

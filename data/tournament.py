@@ -291,7 +291,6 @@ class Tournament:
     def read_papi(self):
         """Fetch tournament information from the Papi database, as well
         as the player information."""
-        assert not self.event.lazy_load
         if self._papi_read:
             return
         if self.file_exists:

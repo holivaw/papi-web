@@ -20,18 +20,17 @@ logger: Logger = get_logger()
 
 
 class EventLoader:
-    def __init__(self, lazy_load: bool):
-        self.lazy_load = lazy_load
+    def __init__(self):
         self._loaded_stored_events_by_id: dict[str, StoredEvent | None] = {}
         self._loaded_events_by_id: dict[str, Event | None] = {}
 
     @classmethod
-    def get(cls, request: HTMXRequest | None, lazy_load: bool):
+    def get(cls, request: HTMXRequest | None):
         if not request:
-            return cls(lazy_load=lazy_load)
-        event_loader: EventLoader = request.state.get('event_loader')
-        if not event_loader or (event_loader.lazy_load and not lazy_load):
-            request.state['event_loader'] = cls(lazy_load=lazy_load)
+            return cls()
+        event_loader: EventLoader = request.state.get('event_loader', None)
+        if not event_loader:
+            request.state['event_loader'] = cls()
         return request.state['event_loader']
 
     def clear_cache(self, event_uniq_id: str | None = None):
@@ -81,7 +80,7 @@ class EventLoader:
             return self._loaded_events_by_id[uniq_id]
         except KeyError:
             stored_event: StoredEvent = self.load_stored_event(uniq_id)
-            self._loaded_events_by_id[uniq_id] = Event(stored_event, lazy_load=self.lazy_load)
+            self._loaded_events_by_id[uniq_id] = Event(stored_event)
             return self._loaded_events_by_id[uniq_id]
 
     def load_event(self, uniq_id: str) -> Event:

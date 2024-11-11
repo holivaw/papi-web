@@ -201,7 +201,7 @@ class ChessEventAdminController(AbstractEventAdminController):
             return self._admin_event_chessevents_render(
                 request, action=action, event_uniq_id=event_uniq_id, chessevent_id=chessevent_id, data=data,
                 errors=stored_chessevent.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database:
             match action:
                 case 'create':
@@ -258,7 +258,7 @@ class ChessEventAdminController(AbstractEventAdminController):
                 request,
                 f'La connexion à ChessEvent [{web_context.admin_chessevent.uniq_id}] a été dupliquée '
                 f'([{stored_chessevent.uniq_id}]).')
-        EventLoader.get(request=request, lazy_load=True).clear_cache(event_uniq_id)
+        EventLoader.get(request=request).clear_cache(event_uniq_id)
         return self._admin_event_chessevents_render(
             request, modal='chessevent', action='update', event_uniq_id=event_uniq_id,
             chessevent_id=stored_chessevent.id)

@@ -465,7 +465,7 @@ class ScreenAdminController(AbstractEventAdminController):
             return self._admin_event_screens_render(
                 request, event_uniq_id=event_uniq_id, modal='screen', action=action, screen_id=screen_id,
                 data=data, errors=stored_screen.errors)
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=False)
+        event_loader: EventLoader = EventLoader.get(request=request)
         with EventDatabase(web_context.admin_event.uniq_id, write=True) as event_database:
             match action:
                 case 'create':
@@ -601,7 +601,7 @@ class ScreenAdminController(AbstractEventAdminController):
                 raise ValueError(f'action=[{action}]')
         if web_context.error:
             return web_context.error
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         match action:
             case 'delete':
                 if len(web_context.admin_screen.screen_sets_sorted_by_order) <= 1:

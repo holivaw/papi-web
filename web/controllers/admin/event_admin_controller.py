@@ -44,7 +44,7 @@ class EventAdminWebContext(AdminWebContext):
             return
         if event_uniq_id:
             try:
-                self.admin_event = EventLoader.get(request=self.request, lazy_load=False).load_event(event_uniq_id)
+                self.admin_event = EventLoader.get(request=self.request).load_event(event_uniq_id)
             except PapiWebException as pwe:
                 self._redirect_error(f'L\'évènement [{event_uniq_id}] est introuvable : {pwe}')
                 return
@@ -205,7 +205,7 @@ class EventAdminController(AbstractEventAdminController):
             elif uniq_id.find('/') != -1:
                 errors['uniq_id'] = "le caractère « / » n\'est pas autorisé"
             else:
-                event_uniq_ids: list[str] = EventLoader.get(request=web_context.request, lazy_load=True).event_uniq_ids
+                event_uniq_ids: list[str] = EventLoader.get(request=web_context.request).event_uniq_ids
                 match action:
                     case 'clone':
                         if uniq_id in event_uniq_ids:
@@ -612,7 +612,7 @@ class EventAdminController(AbstractEventAdminController):
                 request, event_uniq_id=event_uniq_id, modal='event', action=action, data=data,
                 errors=stored_event.errors)
         uniq_id: str = stored_event.uniq_id
-        event_loader = EventLoader.get(request, lazy_load=True)
+        event_loader = EventLoader.get(request=request)
         match action:
             case 'update':
                 rename: bool = uniq_id != web_context.admin_event.uniq_id

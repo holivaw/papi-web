@@ -1,4 +1,4 @@
-from functools import cached_property
+from functools import cached_property, cache
 from math import ceil
 from typing import TYPE_CHECKING
 
@@ -22,14 +22,10 @@ class Family:
     ):
         self.event: 'Event' = event
         self.stored_family: StoredFamily = stored_family
-        self.screens_by_uniq_id: dict[str, Screen] = {}
-        self.calculated_first: int | None = None
-        self.calculated_last: int | None = None
-        self.calculated_number: int | None = None
-        self.calculated_parts: int | None = None
-        if not self.event.lazy_load:
-            if self._calculate_screens():
-                self._build_screens()
+        self._calculated_first: int | None = None
+        self._calculated_last: int | None = None
+        self._calculated_number: int | None = None
+        self._calculated_parts: int | None = None
 
     @property
     def id(self) -> int:
@@ -146,8 +142,8 @@ class Family:
     def last_update_str(self) -> str | None:
         return format_timestamp_date_time(self.last_update)
 
+    @cache
     def _calculate_screens(self) -> bool:
-        assert self.parts is None or self.number is None  # already checked on family creation
         if not self.tournament.rounds:
             self.error = f'Le tournoi [{self.tournament.uniq_id}] ne peut être lu, famille ignorée.'
             self.event.add_warning(self.error, family=self)
@@ -164,19 +160,19 @@ class Family:
                                          f'famille ignorée.'
                             self.event.add_warning(self.error, family=self)
                             return False
-                        self.calculated_first = self.first
+                        self._calculated_first = self.first
                     else:
-                        self.calculated_first = 1
+                        self._calculated_first = 1
                     if self.last:
-                        self.calculated_last = min(self.last, total_items_number)
+                        self._calculated_last = min(self.last, total_items_number)
                     else:
-                        self.calculated_last = total_items_number
-                    cut_items_number = self.calculated_last - self.calculated_first + 1
+                        self._calculated_last = total_items_number
+                    cut_items_number = self._calculated_last - self._calculated_first + 1
                 else:
                     players_instead_of_boards = True
                     cut_items_number = len(self.tournament.players_by_name_with_unpaired)
-                    self.calculated_first = 1
-                    self.calculated_last = cut_items_number
+                    self._calculated_first = 1
+                    self._calculated_last = cut_items_number
             case ScreenType.Players:
                 players_instead_of_boards = False
                 if self.tournament.current_round:
@@ -191,14 +187,14 @@ class Family:
                         self.error = f'Le tournoi ne comporte que [{total_items_number}] joueur·euses, famille ignorée.'
                         self.event.add_warning(self.error, family=self)
                         return False
-                    self.calculated_first = self.first
+                    self._calculated_first = self.first
                 else:
-                    self.calculated_first = 1
+                    self._calculated_first = 1
                 if self.last:
-                    self.calculated_last = min(self.last, total_items_number)
+                    self._calculated_last = min(self.last, total_items_number)
                 else:
-                    self.calculated_last = total_items_number
-                cut_items_number = self.calculated_last - self.calculated_first + 1
+                    self._calculated_last = total_items_number
+                cut_items_number = self._calculated_last - self._calculated_first + 1
             case _:
                 raise ValueError(f'type={self.type}')
         if not cut_items_number:
@@ -210,28 +206,52 @@ class Family:
         # Let's go for the number of items by part and the number of parts
         if self.number:
             if players_instead_of_boards:
-                self.calculated_number = self.number * 2
+                self._calculated_number = self.number * 2
             else:
-                self.calculated_number = self.number
+                self._calculated_number = self.number
         elif self.parts:
-            self.calculated_number = ceil(cut_items_number / self.parts)
+            self._calculated_number = ceil(cut_items_number / self.parts)
         else:
-            self.calculated_number = cut_items_number
+            self._calculated_number = cut_items_number
         divisor: int = self.columns * 2 if players_instead_of_boards else self.columns
         # ensure that the number of items is divisible by the number of columns
-        if self.calculated_number % divisor != 0:
-            self.calculated_number = min(
-                (self.calculated_number // divisor + 1) * divisor,
+        if self._calculated_number % divisor != 0:
+            self._calculated_number = min(
+                (self._calculated_number // divisor + 1) * divisor,
                 cut_items_number)
         # recalculate the number of parts
         # (because the number of items by part may increase to fit the number of columns)
-        self.calculated_parts = ceil(cut_items_number / self.calculated_number)
+        self._calculated_parts = ceil(cut_items_number / self._calculated_number)
         return True
 
-    def _build_screens(self):
-        for family_index in range(1, self.calculated_parts + 1):
-            screen: Screen = Screen(self.event, family=self, family_part=family_index)
-            self.screens_by_uniq_id[screen.uniq_id] = screen
+    @cached_property
+    def screens_by_uniq_id(self) -> dict[str, Screen]:
+        screens_by_uniq_id: dict[str, Screen] = {}
+        if self._calculate_screens():
+            for family_index in range(1, self.calculated_parts + 1):
+                screen: Screen = Screen(self.event, family=self, family_part=family_index)
+                self.screens_by_uniq_id[screen.uniq_id] = screen
+        return screens_by_uniq_id
+
+    @cached_property
+    def calculated_first(self) -> int | None:
+        self._calculate_screens()
+        return self._calculated_first
+
+    @cached_property
+    def calculated_last(self) -> int | None:
+        self._calculate_screens()
+        return self._calculated_last
+
+    @cached_property
+    def calculated_number(self) -> int | None:
+        self._calculate_screens()
+        return self._calculated_number
+
+    @cached_property
+    def calculated_parts(self) -> int | None:
+        self._calculate_screens()
+        return self._calculated_parts
 
     @property
     def numbers_str(self):

@@ -172,7 +172,7 @@ class CheckInUserController(AbstractInputUserController):
             return web_context.error
         web_context.tournament.check_in_player(web_context.player, not web_context.player.check_in)
         SessionHandler.set_session_last_check_in_updated(request, web_context.tournament.id, web_context.player.id)
-        EventLoader.get(request=request, lazy_load=False).clear_cache(web_context.user_event.uniq_id)
+        EventLoader.get(request=request).clear_cache(web_context.user_event.uniq_id)
         web_context: BasicScreenOrFamilyUserWebContext = BasicScreenOrFamilyUserWebContext(
             request, data=None, event_uniq_id=event_uniq_id, screen_uniq_id=screen_uniq_id)
         if web_context.error:
@@ -206,7 +206,7 @@ class IllegalMoveUserController(AbstractInputUserController):
             else:
                 SessionHandler.set_session_last_illegal_move_updated(
                     request, web_context.tournament.id, web_context.player.id)
-        EventLoader.get(request=request, lazy_load=False).clear_cache(web_context.user_event.uniq_id)
+        EventLoader.get(request=request).clear_cache(web_context.user_event.uniq_id)
         web_context: BasicScreenOrFamilyUserWebContext = BasicScreenOrFamilyUserWebContext(
             request, data=None, event_uniq_id=event_uniq_id, screen_uniq_id=screen_uniq_id)
         if web_context.error:
@@ -298,7 +298,7 @@ class ResultUserController(AbstractInputUserController):
                 return AbstractController.redirect_error(request, f'Le résultat [{result}] est invalide.')
             web_context.tournament.add_result(web_context.board, Result.from_papi_value(result))
         SessionHandler.set_session_last_result_updated(request, web_context.tournament.id, round, web_context.board.id)
-        EventLoader.get(request=request, lazy_load=False).clear_cache(web_context.user_event.uniq_id)
+        EventLoader.get(request=request).clear_cache(web_context.user_event.uniq_id)
         web_context: BasicScreenOrFamilyUserWebContext = BasicScreenOrFamilyUserWebContext(
             request, data=None, event_uniq_id=event_uniq_id, screen_uniq_id=screen_uniq_id)
         if web_context.error:

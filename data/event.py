@@ -1,4 +1,3 @@
-import fnmatch
 import logging
 import time
 from collections import defaultdict
@@ -69,80 +68,30 @@ class EventMessage:
 @total_ordering
 class Event:
     """A data wrapper around a StoredEvent."""
-    def __init__(self, stored_event: StoredEvent, lazy_load: bool):
+    def __init__(self, stored_event: StoredEvent):
         self.stored_event: StoredEvent = stored_event
-        self.lazy_load = lazy_load
-        self.chessevents_by_id: dict[int, ChessEvent] = {}
-        self.chessevents_by_uniq_id: dict[str, ChessEvent] = {}
-        self.tournaments_by_id: dict[int, Tournament] = {}
-        self.tournaments_by_uniq_id: dict[str, Tournament] = {}
-        self.screens_by_uniq_id: dict[str, Screen] = {}
-        self.basic_screens_by_id: dict[int, Screen] = {}
-        self.basic_screens_by_uniq_id: dict[str, Screen] = {}
-        self.families_by_id: dict[int, Family] = {}
-        self.families_by_uniq_id: dict[str, Family] = {}
-        self.family_screens_by_uniq_id: dict[str, Screen] = {}
-        self.rotators_by_id: dict[int, Rotator] = {}
-        self.rotators_by_uniq_id: dict[str, Rotator] = {}
-        self.timers_by_id: dict[int, Timer] = {}
-        self.timers_by_uniq_id: dict[str, Timer] = {}
         self.messages: list[EventMessage] = []
         last_load_date: float = event_last_load_date_by_uniq_id.get(self.uniq_id, None)
         self._silent = last_load_date is not None and last_load_date > self.stored_event.last_update
-        self.build()
         event_last_load_date_by_uniq_id[self.uniq_id] = time.time()
-
-    def build(self):
-        self.build_root()
         if self.errors:
             self.add_warning(
                 'Des erreurs ont été trouvées sur l\'évènement, les connexions à ChessEvent, chronomètres, tournois, '
                 'écrans, familles et écrans rotatifs ne seront pas chargés')
             return
-        self._build_chessevents()
-        if self.errors:
-            self.add_warning(
-                'Des erreurs ont été trouvées sur les connexions à ChessEvent, les chronomètres, tournois, écrans, '
-                'familles et écrans rotatifs ne seront pas chargés')
-            return
-        self._build_timers()
-        if self.errors:
-            self.add_warning(
-                'Des erreurs ont été trouvées sur les chronomètres, les tournois, écrans, familles et écrans '
-                'rotatifs ne seront pas chargés')
-            return
-        self._build_tournaments()
-        if self.errors:
-            self.add_warning(
-                'Des erreurs ont été trouvées sur les tournois, les écrans, familles et écrans rotatifs ne seront pas '
-                'chargés')
-            return
-        # if lazy_load screen sets will not be calculated
-        self._build_screens()
-        if self.errors:
-            self.add_warning(
-                'Des erreurs ont été trouvées sur les écrans, les familles et écrans rotatifs ne seront pas chargés')
-            return
-        # if lazy_load family screens will not be calculated
-        self._build_families()
-        if self.errors:
-            self.add_warning(
-                'Des erreurs ont été trouvées sur les familles, les écrans rotatifs ne seront pas chargés')
-            return
-        if not self.lazy_load:
-            self._set_screen_menus()
-        if not self.lazy_load:
-            self._build_rotators()
-            if self.errors:
-                return
 
     @property
     def uniq_id(self) -> str:
         return self.stored_event.uniq_id
 
-    @property
+    @cached_property
     def name(self) -> str:
-        return self.stored_event.name if self.stored_event.name else self.uniq_id
+        name: str = self.uniq_id
+        if not self.stored_event.name:
+            self.add_error(f'pas de nom défini, par défaut [{name}]')
+        else:
+            name = self.stored_event.name
+        return name
 
     @property
     def start(self) -> float:
@@ -180,13 +129,27 @@ class Event:
     def players_number(self) -> int:
         return sum((len(tournament.players_by_name_with_unpaired) for tournament in self.tournaments_by_id.values()))
 
-    @property
+    @cached_property
     def path(self) -> Path:
-        return Path(self.stored_event.path) if self.stored_event.path else PapiWebConfig.default_papi_path
+        path: Path = PapiWebConfig.default_papi_path
+        if not self.stored_event.path:
+            self.add_debug(f'pas de répertoire défini par défaut pour les fichiers Papi, par défaut [{path}]')
+        else:
+            path = Path(self.stored_event.path)
+        if not path.exists():
+            self.add_warning(f'le répertoire [{path}] n\'existe pas')
+        elif not path.is_dir():
+            self.add_warning(f'[{path}] n\'est pas un répertoire')
+        return path
 
-    @property
+    @cached_property
     def background_image(self) -> str:
-        return self.stored_event.background_image or PapiWebConfig.default_background_image
+        background_image: str = PapiWebConfig.default_background_image
+        if not self.stored_event.background_image:
+            self.add_debug(f'pas d\'image de fond définie, image de fond par défaut : [{background_image}]')
+        else:
+            background_image = self.stored_event.background_image
+        return background_image
 
     @cached_property
     def background_url(self) -> str:
@@ -194,17 +157,28 @@ class Event:
 
     @cached_property
     def background_color(self) -> str:
-        return self.stored_event.background_color or PapiWebConfig.default_background_color
+        background_color: str = PapiWebConfig.default_background_color
+        if not self.stored_event.background_color:
+            self.add_debug(f'pas de couleur de fond définie, couleur de fond par défaut : [{background_color}]')
+        else:
+            background_color = self.stored_event.background_color
+        return background_color
 
     @property
-    def update_password(self) -> str:
-        return self.stored_event.update_password
+    def update_password(self) -> str | None:
+        update_password: str | None = self.stored_event.update_password
+        if not update_password:
+            self.add_debug('pas de mot de passe défini pour les écrans de saisie')
+        return update_password
 
     @property
     def record_illegal_moves(self) -> int:
+        record_illegal_moves: int = PapiWebConfig.default_record_illegal_moves_number
         if self.stored_event.record_illegal_moves is None:
-            return PapiWebConfig.default_record_illegal_moves_number
-        return self.stored_event.record_illegal_moves
+            self.add_debug(f'nombre de coups illégaux non défini, par défaut [{record_illegal_moves}]')
+        else:
+            record_illegal_moves = self.stored_event.record_illegal_moves
+        return record_illegal_moves
 
     @cached_property
     def timer_colors(self) -> dict[int, str]:
@@ -306,124 +280,146 @@ class Event:
     def last_update(self) -> float | None:
         return self.stored_event.last_update
 
-    @property
+    @cached_property
     def last_update_str(self) -> str | None:
         return format_timestamp_date_time(self.last_update)
 
-    def build_root(self):
-        if not self.stored_event.name:
-            self.add_error(f'pas de nom défini, par défaut [{self.name}]')
-        if not self.stored_event.path:
-            self.add_debug(f'pas de répertoire défini par défaut pour les fichiers Papi, par défaut [{self.path}]')
-        if not self.path.exists():
-            self.add_warning(f'le répertoire [{self.path}] n\'existe pas')
-        elif not self.path.is_dir():
-            self.add_warning(f'[{self.path}] n\'est pas un répertoire')
-        if not self.stored_event.background_image:
-            self.add_debug('pas d\'image définie')
-        if not self.stored_event.background_color:
-            self.add_debug('pas de couleur de fond définie')
-        if not self.stored_event.update_password:
-            self.add_debug('pas de mot de passe défini pour les écrans de saisie')
-        if self.stored_event.record_illegal_moves is None:
-            self.add_debug(f'nombre de coups illégaux non défini, par défaut [{self.record_illegal_moves}]')
+    @cached_property
+    def chessevents_by_id(self) -> dict[int, ChessEvent]:
+        if self.errors:
+            return {}
+        chessevents_by_id: dict[int, ChessEvent] = {
+            stored_chessevent.id: ChessEvent(self, stored_chessevent)
+            for stored_chessevent in self.stored_event.stored_chessevents
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les connexions à ChessEvent, les chronomètres, tournois, écrans, '
+                'familles et écrans rotatifs ne seront pas chargés')
+        return chessevents_by_id
 
-    def _build_chessevents(self):
-        for stored_chessevent in self.stored_event.stored_chessevents:
-            chessevent: ChessEvent = ChessEvent(self, stored_chessevent)
-            self.chessevents_by_id[chessevent.id] = chessevent
-            self.chessevents_by_uniq_id[chessevent.uniq_id] = chessevent
+    @cached_property
+    def chessevents_by_uniq_id(self) -> dict[str, ChessEvent]:
+        return {
+            chessevent.uniq_id: chessevent
+            for chessevent in self.chessevents_by_id.values()
+        }
 
-    def _build_timers(self):
-        for stored_timer in self.stored_event.stored_timers:
-            timer: Timer = Timer(self, stored_timer)
-            self.timers_by_id[timer.id] = timer
-            self.timers_by_uniq_id[timer.uniq_id] = timer
+    @cached_property
+    def timers_by_id(self) -> dict[int, Timer]:
+        if self.errors:
+            return {}
+        timers_by_id: dict[int, Timer] = {
+            stored_timer.id: Timer(self, stored_timer)
+            for stored_timer in self.stored_event.stored_timers
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les chronomètres, les tournois, écrans, familles et écrans rotatifs '
+                'ne seront pas chargés')
+        return timers_by_id
 
-    def _build_tournaments(self):
-        for stored_tournament in self.stored_event.stored_tournaments:
-            tournament: Tournament = Tournament(self, stored_tournament)
-            self.tournaments_by_id[tournament.id] = tournament
-            self.tournaments_by_uniq_id[tournament.uniq_id] = tournament
+    @cached_property
+    def timers_by_uniq_id(self) -> dict[str, Timer]:
+        return {
+            timer.uniq_id: timer
+            for timer in self.timers_by_id.values()
+        }
 
-    def _build_screens(self):
-        for stored_screen in self.stored_event.stored_screens:
-            screen: Screen = Screen(self, stored_screen=stored_screen)
-            self.basic_screens_by_id[screen.id] = screen
-            self.basic_screens_by_uniq_id[screen.uniq_id] = screen
-            self.screens_by_uniq_id[screen.uniq_id] = screen
+    @cached_property
+    def tournaments_by_id(self) -> dict[int, Tournament]:
+        if self.errors:
+            return {}
+        tournaments_by_id: dict[int, Tournament] = {
+            stored_tournament.id: Tournament(self, stored_tournament)
+            for stored_tournament in self.stored_event.stored_tournaments
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les tournois, écrans, familles et écrans rotatifs ne seront pas '
+                'chargés')
+        return tournaments_by_id
 
-    def _build_families(self):
-        for stored_family in self.stored_event.stored_families:
-            family: Family = Family(self, stored_family)
-            self.families_by_uniq_id[stored_family.uniq_id] = family
-            self.families_by_id[stored_family.id] = family
-            for screen in family.screens_by_uniq_id.values():
-                self.screens_by_uniq_id[screen.uniq_id] = screen
-                self.family_screens_by_uniq_id[screen.uniq_id] = screen
+    @cached_property
+    def tournaments_by_uniq_id(self) -> dict[str, Tournament]:
+        return {
+            tournament.uniq_id: tournament
+            for tournament in self.tournaments_by_id.values()
+        }
 
-    def _build_rotators(self):
-        for stored_rotator in self.stored_event.stored_rotators:
-            rotator: Rotator = Rotator(self, stored_rotator)
-            self.rotators_by_uniq_id[stored_rotator.uniq_id] = rotator
-            self.rotators_by_id[stored_rotator.id] = rotator
+    @cached_property
+    def basic_screens_by_id(self) -> dict[int, Screen]:
+        if self.errors:
+            return {}
+        screens_by_id: dict[int, Screen] = {
+            stored_screen.id: Screen(self, stored_screen=stored_screen)
+            for stored_screen in self.stored_event.stored_screens
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les écrans, les familles et écrans rotatifs ne seront pas chargés')
+        return screens_by_id
 
-    def _set_screen_menus(self):
-        boards_menu_screens: list[Screen] = []
-        input_menu_screens: list[Screen] = []
-        players_menu_screens: list[Screen] = []
-        results_menu_screens: list[Screen] = []
-        for screen in self.screens_by_uniq_id.values():
-            if screen.menu_label:
-                match screen.type:
-                    case ScreenType.Boards:
-                        boards_menu_screens.append(screen)
-                    case ScreenType.Input:
-                        input_menu_screens.append(screen)
-                    case ScreenType.Players:
-                        players_menu_screens.append(screen)
-                    case ScreenType.Results:
-                        results_menu_screens.append(screen)
-                    case ScreenType.Image:
-                        pass
-                    case _:
-                        raise ValueError(f'type={screen.type}')
-        for screen in self.screens_by_uniq_id.values():
-            if screen.menu is None:
-                screen.menu_screens = []
-                continue
-            for menu_part in map(str.strip, screen.menu.split(',')):
-                if not menu_part:
-                    continue
-                if menu_part == '@boards':
-                    screen.menu_screens += boards_menu_screens
-                    continue
-                if menu_part == '@input':
-                    screen.menu_screens += input_menu_screens
-                    continue
-                if menu_part == '@players':
-                    screen.menu_screens += players_menu_screens
-                    continue
-                if menu_part == '@results':
-                    screen.menu_screens += results_menu_screens
-                    continue
-                if menu_part == '@family':
-                    assert screen.family_id is not None
-                    screen.menu_screens += self.families_by_id[screen.family_id].screens_by_uniq_id.values()
-                    continue
-                if '*' in menu_part:
-                    menu_part_screen_uniq_ids: list[str] = fnmatch.filter(self.screens_by_uniq_id.keys(), menu_part)
-                    if not menu_part_screen_uniq_ids:
-                        self.add_warning(f'Le motif [{menu_part}] ne correspond à aucun écran', screen=screen)
-                    else:
-                        screen.menu_screens += [
-                            self.screens_by_uniq_id[screen_uniq_id] for screen_uniq_id in menu_part_screen_uniq_ids
-                        ]
-                    continue
-                if menu_part in self.screens_by_uniq_id:
-                    screen.menu_screens.append(self.screens_by_uniq_id[menu_part])
-                else:
-                    self.add_warning(f'L\'écran [{menu_part}] n\'existe pas', screen=screen)
+    @cached_property
+    def basic_screens_by_uniq_id(self) -> dict[str, Screen]:
+        return {
+            screen.uniq_id: screen
+            for screen in self.basic_screens_by_id.values()
+        }
+
+    @cached_property
+    def families_by_id(self) -> dict[int, Family]:
+        if self.errors:
+            return {}
+        families_by_id: dict[int, Family] = {
+            stored_family.id: Family(self, stored_family=stored_family)
+            for stored_family in self.stored_event.stored_families
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les familles les écrans rotatifs ne seront pas chargés')
+        return families_by_id
+
+    @cached_property
+    def families_by_uniq_id(self) -> dict[str, Family]:
+        return {
+            family.uniq_id: family
+            for family in self.families_by_id.values()
+        }
+
+    @cached_property
+    def screens_by_uniq_id(self) -> dict[str, Screen]:
+        screens_by_uniq_id: dict[str, Screen] = self.basic_screens_by_uniq_id
+        for family in self.families_by_id.values():
+            screens_by_uniq_id |= family.screens_by_uniq_id
+        return screens_by_uniq_id
+
+    @cached_property
+    def family_screens_by_uniq_id(self) -> dict[str, Screen]:
+        family_screens_by_uniq_id: dict[str, Screen] = {}
+        for family in self.families_by_id.values():
+            family_screens_by_uniq_id |= family.screens_by_uniq_id
+        return family_screens_by_uniq_id
+
+    @cached_property
+    def rotators_by_id(self) -> dict[int, Rotator]:
+        if self.errors:
+            return {}
+        rotators_by_id: dict[int, Rotator] = {
+            stored_rotator.id: Rotator(self, stored_rotator)
+            for stored_rotator in self.stored_event.stored_rotators
+        }
+        if self.errors:
+            self.add_warning(
+                'Des erreurs ont été trouvées sur les écrans rotatifs')
+        return rotators_by_id
+
+    @cached_property
+    def rotators_by_uniq_id(self) -> dict[str, Rotator]:
+        return {
+            rotator.uniq_id: rotator
+            for rotator in self.rotators_by_id.values()
+        }
 
     def _add_message(
             self, level: int, text: str, tournament: Tournament | None = None, chessevent: ChessEvent | None = None,

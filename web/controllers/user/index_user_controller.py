@@ -65,7 +65,7 @@ class IndexUserController(AbstractUserController):
         web_context: UserWebContext = UserWebContext(request, data=None, user_tab=user_tab)
         if web_context.error:
             return web_context.error
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         current_events: list[Event]
         coming_events: list[Event]
         passed_events: list[Event]
@@ -122,7 +122,7 @@ class IndexUserController(AbstractUserController):
             request: HTMXRequest,
             user_tab: str | None,
             date: float, ) -> bool:
-        event_loader: EventLoader = EventLoader.get(request=request, lazy_load=True)
+        event_loader: EventLoader = EventLoader.get(request=request)
         web_context: UserWebContext = UserWebContext(request, data=None, user_tab=user_tab)
         if web_context.error:
             return False

@@ -20,7 +20,7 @@ class EventSelector(metaclass=Singleton):
         """The CLI interface function for selection of an event.
         Returns True if all went well (might be unreachable).
         Returns False if interrupted or if the user choses to quit."""
-        events: list[Event] = EventLoader.get(request=None, lazy_load=True).events_sorted_by_name
+        events: list[Event] = EventLoader.get(request=None).events_sorted_by_name
         if not events:
             logger.error('Aucun évènement trouvé')
             return False
