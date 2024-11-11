@@ -80,7 +80,6 @@ class RotatorAdminController(AbstractEventAdminController):
                 raise ValueError(f'action=[{action}]')
         public: bool | None = None
         delay: int | None = None
-        show_menus: bool | None = None
         screen_ids: list[int] | None = None
         family_ids: list[int] | None = None
         match action:
@@ -90,7 +89,6 @@ class RotatorAdminController(AbstractEventAdminController):
                     delay = WebContext.form_data_to_int(data, 'delay', minimum=1)
                 except ValueError:
                     errors['delay'] = 'Un entier positif est attendu.'
-                show_menus = WebContext.form_data_to_bool(data, 'show_menus')
                 screen_ids = []
                 for screen_id in web_context.admin_event.basic_screens_by_id:
                     field = f'screen_{screen_id}'
@@ -110,21 +108,10 @@ class RotatorAdminController(AbstractEventAdminController):
             uniq_id=uniq_id,
             public=public,
             delay=delay,
-            show_menus=show_menus,
             screen_ids=screen_ids,
             family_ids=family_ids,
             errors=errors,
         )
-
-    @staticmethod
-    def _get_show_menus_options() -> dict[str, str]:
-        options: dict[str, str] = {
-            '': '-',
-            'off': 'Pas d\'affichage des menus des écrans',
-            'on': 'Affichage des menus des écrans',
-        }
-        options[''] = f'Par défaut ({options["on" if PapiWebConfig.default_rotator_show_menus else "off"]})'
-        return options
 
     @classmethod
     def _admin_event_rotators_render(
@@ -156,8 +143,6 @@ class RotatorAdminController(AbstractEventAdminController):
                                 web_context.admin_rotator.stored_rotator.public)
                             data['delay'] = WebContext.value_to_form_data(
                                 web_context.admin_rotator.stored_rotator.delay)
-                            data['show_menus'] = WebContext.value_to_form_data(
-                                web_context.admin_rotator.stored_rotator.show_menus)
                             for screen_id in web_context.admin_event.basic_screens_by_id:
                                 data[f'screen_{screen_id}'] = WebContext.value_to_form_data(
                                     screen_id in web_context.admin_rotator.stored_rotator.screen_ids)
@@ -177,7 +162,6 @@ class RotatorAdminController(AbstractEventAdminController):
                 if errors is None:
                     errors = {}
                 template_context |= {
-                    'show_menus_options': cls._get_show_menus_options(),
                     'modal': modal,
                     'action': action,
                     'data': data,

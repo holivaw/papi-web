@@ -142,7 +142,6 @@ class StoredRotator:
     family_ids: list[int] | None
     screen_ids: list[int] | None
     delay: int | None
-    show_menus: bool | None
     public: bool = True
     errors: dict[str, str] = field(default_factory=dict[str, str])
 

@@ -42,11 +42,6 @@ class Rotator:
         return self.stored_rotator.delay if self.stored_rotator.delay is not None \
             else PapiWebConfig.default_rotator_delay
 
-    @property
-    def show_menus(self) -> bool:
-        return self.stored_rotator.show_menus if self.stored_rotator.show_menus is not None \
-            else PapiWebConfig.default_rotator_show_menus
-
     @cached_property
     def screens(self) -> list[Screen]:
         screens: list[Screen] = []

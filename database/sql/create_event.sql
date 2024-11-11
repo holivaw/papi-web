@@ -189,7 +189,6 @@ CREATE TABLE `rotator` (
     `screen_ids` TEXT,
     `family_ids` TEXT,
     `delay` INTEGER,
-    `show_menus` INTEGER,
     PRIMARY KEY(`id` AUTOINCREMENT),
     UNIQUE(`uniq_id`)
 );

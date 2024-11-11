@@ -524,7 +524,7 @@ class EventDatabase(SQLiteDatabase):
                             self._check_populate_dict(
                                 yml_file, f'/rotators/{rotator_uniq_id}', rotator_dict,
                                 optional_fields=[
-                                    'public', 'delay', 'show_menus', 'screen_uniq_ids', 'family_uniq_ids',
+                                    'public', 'delay', 'screen_uniq_ids', 'family_uniq_ids',
                                 ])
                             screen_ids: list[int]
                             family_ids: list[int]
@@ -553,7 +553,6 @@ class EventDatabase(SQLiteDatabase):
                                 uniq_id=rotator_uniq_id,
                                 public=screen_dict.get('public', True),
                                 delay=rotator_dict.get('delay', None),
-                                show_menus=rotator_dict.get('show_menus', None),
                                 screen_ids=screen_ids,
                                 family_ids=family_ids,
                             ))
@@ -696,7 +695,13 @@ class EventDatabase(SQLiteDatabase):
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
-        final_target_version: Version = Version('2.4.4')
+        if self.version.public in ['2.4.4', ]:
+            target_version: Version = Version('2.4.5')
+            self._execute('ALTER TABLE `rotator` DROP COLUMN `show_menus`')
+            self.set_version(target_version)
+            self.commit()
+            logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
+        final_target_version: Version = Version('2.4.5')
         if self.version == final_target_version:
             logger.info(f'La base de données {self.file.name} a été mise à jour en version {final_target_version}.')
             return
@@ -1866,7 +1871,6 @@ class EventDatabase(SQLiteDatabase):
             uniq_id=row['uniq_id'],
             public=cls.load_bool_from_database_field(row['public']),
             delay=row['delay'],
-            show_menus=cls.load_bool_from_database_field(row['show_menus']),
             screen_ids=cls.load_json_from_database_field(row['screen_ids']),
             family_ids=cls.load_json_from_database_field(row['family_ids']),
         )
@@ -1891,9 +1895,9 @@ class EventDatabase(SQLiteDatabase):
     def _write_stored_rotator(
             self, stored_rotator: StoredRotator,
     ) -> StoredRotator:
-        fields: list[str] = ['uniq_id', 'public', 'delay', 'show_menus', 'screen_ids', 'family_ids', ]
+        fields: list[str] = ['uniq_id', 'public', 'delay', 'screen_ids', 'family_ids', ]
         params: list = [
-            stored_rotator.uniq_id, stored_rotator.public, stored_rotator.delay, stored_rotator.show_menus,
+            stored_rotator.uniq_id, stored_rotator.public, stored_rotator.delay,
             self.dump_to_json_database_field(stored_rotator.screen_ids, []),
             self.dump_to_json_database_field(stored_rotator.family_ids, []),
         ]

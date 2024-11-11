@@ -159,7 +159,7 @@ class PapiWebConfig(metaclass=Singleton):
     def ffe_upload_delay(self) -> int:
         return self.__ffe_upload_delay
 
-    version: Version = Version('2.4.4')
+    version: Version = Version('2.4.5')
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
@@ -257,8 +257,6 @@ class PapiWebConfig(metaclass=Singleton):
     default_players_show_unpaired: bool = True
 
     default_rotator_delay: int = 15
-
-    default_rotator_show_menus: bool = False
 
     default_timer_round_text_before: str = 'Début de la ronde {} dans %s'
 

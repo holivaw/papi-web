@@ -179,7 +179,6 @@
 | `screen_ids`            | `TEXT`    |                                            | La liste des écrans à afficher, au format JSON.                                                                                                                                   |
 | `family_ids`            | `TEXT`    |                                            | La liste des familles d'écrans à afficher, au format JSON.                                                                                                                        |
 | `delay`                 | `INTEGER` |                                            | Le délai de rotation des écrans en secondes, facultatif (par défaut 15).                                                                                                          |
-| `show_menus`            | `INTEGER` |                                            | Booléen :<br/>- `1` : les menus des écrans sont affichés ;<br/>- `0` : les menus des écrans ne sont pas affichés (par défaut).                                                    |
 
 ### table `skipped_round` (forfaits et byes)
 

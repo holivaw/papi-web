@@ -108,7 +108,7 @@
                                             placeholder="Exemple : {{ papi_web_config.default_rotator_delay }} (secondes)"
                                             value="{{ data[name] }}" />
                                     <div id="{{ id }}-help" class="form-text">
-                                      Le délai d'attente entre deux écrans (par défaut {{ papi_web_config.default_rotator_delay }}.
+                                      Le délai de rotation entre deux écrans (par défaut {{ papi_web_config.default_rotator_delay }}.
                                     </div>
                                     {% if name in errors %}
                                         <div id="{{ id }}-error" class="form-text invalid-feedback">
@@ -118,31 +118,9 @@
                                 </div>
                             {% endwith %}
                         </div>
-                        <div class="col-6">
-                            {% with id='show-menus', name='show_menus' %}
-                                <label for="{{ id }}" class="form-label">Affichage des menus des écrans :</label>
-                                <select
-                                        name="{{ name }}"
-                                        id="{{ id }}"
-                                        class="form-control {% if name in errors %}is-invalid{% else %}is-valid{% endif %}"
-                                        aria-describedby="{{ id }}-help {{ id }}-error" >
-                                    {% for value, text in show_menus_options.items() %}
-                                        <option value="{{ value }}" {% if value == data[name] %}selected{%endif %}>{{ text }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div id="{{ id }}-help" class="form-text">
-                                  En général l'affichage des menus sur les écrans rotatifs n'est pas nécessaire, il peut néanmoins être activé si nécessaire.
-                                </div>
-                                {% if name in errors %}
-                                    <div id="{{ id }}-error" class="form-text invalid-feedback">
-                                        {{ errors[name] }}
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-                        </div>
                     </div>
                     <h3>
-                        Sélection des affichages
+                        Sélection des écrans
                         (<i class="bi-card-list"></i>&nbsp;échiquiers,
                         <i class="bi-pencil-fill"></i>&nbsp;saisie,
                         <i class="bi-people-fill"></i>&nbsp;appariements,
@@ -150,10 +128,7 @@
                         <i class="bi-image"></i>&nbsp;image)
                     </h3>
                     <div class="row">
-                        <div class="col-6">
-                            <label class="form-label">
-                                Écrans :
-                            </label>
+                        <div class="col-12">
                             <div>
                                 {% if admin_event.basic_screens_by_id %}
                                     {% for first in [true, false] %}
@@ -180,15 +155,22 @@
                                         {% endwith %}
                                     {% endfor %}
                                 {% else %}
-                                    Aucun écran.
+                                    Aucun écran à sélectionner.
                                 {% endif %}
                             </div>
-                            <div id="" class="form-text">
+                            <div class="form-text">
                                 Les tournois qui seront affichés de manière circulaire (les écrans de saisie apparaissent en italique car ils ne devraient normalement pas être inclus dans les écrans rotatifs).
                             </div>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label">Familles :</label>
+                    </div>
+                    <h3>
+                        Sélection des familles
+                        (<i class="bi-card-list"></i>&nbsp;échiquiers,
+                        <i class="bi-pencil-fill"></i>&nbsp;saisie,
+                        <i class="bi-people-fill"></i>&nbsp;appariements)
+                    </h3>
+                    <div class="row">
+                        <div class="col-12">
                             <div>
                                 {% if admin_event.families_by_id %}
                                     {% for first in [true, false] %}
