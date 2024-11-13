@@ -131,17 +131,17 @@ class Engine:
                 if version_num is not None:
                     recovered_version = previous_versions[version_num - 1]
                     self._recover_previous_version_events(recovered_version, previous_databases[recovered_version])
-            if not previous_databases and not recovered_version:
+            if not recovered_version:
                 while True:
                     match input_interactive('Voulez-vous installer des bases de données d\'exemple [O/n] ?'):
-                        case 'O':
+                        case '' | 'O':
                             for event_id in (
                                     file.stem for file in
                             PapiWebConfig.database_yml_path.glob(f'*.{PapiWebConfig.yml_ext}')
                             ):
                                 EventDatabase(event_id).create(populate=True)
                             break
-                        case '' | 'N':
+                        case 'N':
                             break
 
     @classmethod
