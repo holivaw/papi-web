@@ -3,7 +3,8 @@
 # Papi-web - ChangeLog
 
 ## Version 2.4.6 - 13 novembre 2024
-- Mise à jour à la demande de la dernière version stable lorsque disponible
+- Mise à jour (à la demande) de la dernière version stable lorsque disponible
+- Ajout de la licence des joueur·euses sur les écrans de pointage des arbitres (#45)
 
 ## Version 2.4.5 - 12 novembre 2024
 - Optimisation des accès aux bases Access (#48)
