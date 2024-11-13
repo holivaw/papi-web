@@ -1,11 +1,9 @@
-import platform
 import socket
 from logging import Logger
 from threading import Thread
 from time import sleep
 from webbrowser import open
 
-import pyodbc
 import requests
 import uvicorn
 from litestar import Litestar
@@ -35,13 +33,8 @@ class ServerEngine(Engine):
     def __init__(self):
         logger.info(f'Starting Papi-web server, please wait...')
         super().__init__()
-        logger.debug('ODBC drivers found:')
-        for driver in pyodbc.drivers():
-            logger.debug(f' - {driver}')
-        logger.debug('System information:')
-        logger.debug(f' - Machine/processor: {platform.machine()}/{platform.processor()}')
-        logger.debug(f' - Platform: {platform.platform()}')
-        logger.debug(f' - Architecture: {" ".join(platform.architecture())}')
+        if self.updated:
+            return
         papi_web_config: PapiWebConfig = PapiWebConfig()
         logger.info(f'log: {papi_web_config.log_level_str}')
         logger.info(f'port: {papi_web_config.web_port}')

@@ -2,6 +2,9 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.6 - 13 novembre 2024
+- Mise à jour à la demande de la dernière version stable lorsque disponible
+
 ## Version 2.4.5 - 12 novembre 2024
 - Optimisation des accès aux bases Access (#48)
 - Réduction du trafic client/serveur (#49)
