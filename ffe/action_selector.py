@@ -70,7 +70,7 @@ class ActionSelector(metaclass=Singleton):
                 logger.error('Aucun tournoi éligible pour cette action')
                 return True
             for tournament in tournaments:
-                FFESession(tournament).test()
+                FFESession(tournament, debug=False).test_auth()
             return True
         if choice == 'V':
             logger.info('Action : affichage des tournois en ligne')
@@ -80,7 +80,7 @@ class ActionSelector(metaclass=Singleton):
                 logger.error('Aucun tournoi éligible pour cette action')
                 return True
             for tournament in tournaments:
-                FFESession(tournament).upload(set_visible=True)
+                FFESession(tournament, debug=False).upload(set_visible=True)
             return True
         if choice == 'H':
             logger.info('Action : téléchargement des factures d\'homologation')
@@ -89,7 +89,7 @@ class ActionSelector(metaclass=Singleton):
                 logger.error('Aucun tournoi éligible pour cette action')
                 return True
             for tournament in tournaments:
-                FFESession(tournament).get_fees()
+                FFESession(tournament, debug=False).get_fees()
             return True
         if choice == 'U':
             (logger.info('Action : mise en ligne des résultats'))
@@ -120,7 +120,7 @@ class ActionSelector(metaclass=Singleton):
                                 f'{recently_updated_tournaments} tournoi(s) a(ont) été modifié(s) il y a moins de '
                                 f'{ffe_upload_delay} secondes, temporisation en cours')
                     for tournament in updated_tournaments:
-                        FFESession(tournament).upload(set_visible=False)
+                        FFESession(tournament, debug=False).upload(set_visible=False)
                     time.sleep(10)
             except KeyboardInterrupt:
                 logger.info('Fin de la mise en ligne')
