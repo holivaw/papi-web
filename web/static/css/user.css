@@ -71,6 +71,18 @@
 .board-row.last_result_updated > * {
     color: red !important;
 }
+.input-screen .player-row .player-lic {
+    color: #ffffff;
+}
+.input-screen .player-row .player-lic.A {
+    background-color: #001da3;
+}
+.input-screen .player-row .player-lic.B {
+    background-color: #6480ff;
+}
+.input-screen .player-row .player-lic.N {
+    background-color: #767676;
+}
 /*
 ###########################################################
 # PLAYERS SCREENS - ROWS
