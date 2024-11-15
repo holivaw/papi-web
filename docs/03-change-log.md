@@ -2,9 +2,13 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.7 - 15 novembre 2024
+- Affichage des drapeaux des fédérations sur les écrans de pointage des arbitres
+- Correction d'un bug sur la récupération des évènements des versions précédentes
+
 ## Version 2.4.6 - 14 novembre 2024
 - Mise à jour (à la demande) de la dernière version stable lorsque disponible
-- Ajout de la licence des joueur·euses sur les écrans de pointage des arbitres (#45)
+- Affichage de la licence des joueur·euses sur les écrans de pointage des arbitres (#45)
 - Correction d'un bug sur le téléchargement des tournois sur le site fédéral
 
 ## Version 2.4.5 - 12 novembre 2024
