@@ -17,9 +17,9 @@ from requests.exceptions import ConnectionError, Timeout, RequestException, \
 
 from common.logger import get_logger, configure_logger, input_interactive, print_interactive
 from common.papi_web_config import PapiWebConfig, TMP_DIR
+from data.event import Event
 from data.loader import EventLoader
 from database.sqlite import EventDatabase
-from event import Event
 
 logger: Logger = get_logger()
 configure_logger(logging.INFO)
@@ -33,6 +33,11 @@ class Engine:
             TMP_DIR.mkdir(parents=True, exist_ok=True)
         except PermissionError as pe:
             logger.critical(f'Impossible de créer le répertoire {TMP_DIR.absolute()} :-(')
+            raise pe
+        try:
+            PapiWebConfig.event_path.mkdir(parents=True, exist_ok=True)
+        except PermissionError as pe:
+            logger.critical(f'Impossible de créer le répertoire {PapiWebConfig.event_path.absolute()} :-(')
             raise pe
         logger.debug('ODBC drivers found:')
         for driver in pyodbc.drivers():
@@ -220,7 +225,7 @@ class Engine:
         Otherwise, the last stable version is returned."""
         url: str = 'https://api.github.com/repos/papi-web-org/papi-web/releases'
         try:
-            logger.debug('Recherche d\'une version plus récente sur GitHub (%s)...', url)
+            logger.info('Recherche d\'une version plus récente sur GitHub (%s)...', url)
             response: Response = get(url, allow_redirects=True, timeout=5)
             response.raise_for_status()
             if not response:
@@ -250,7 +255,7 @@ class Engine:
                 return None
             versions.sort(key=Version)
             logger.debug('releases=%s', versions)
-            return Version(versions[0])
+            return Version(versions[-1])
         except ConnectionError as e:
             logger.warning('Veuillez vérifier votre connection à internet : %s', e)
             return None
