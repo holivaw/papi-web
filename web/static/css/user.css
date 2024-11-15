@@ -83,6 +83,9 @@
 .input-screen .player-row .player-lic.N {
     background-color: #767676;
 }
+.input-screen .player-federation-flag {
+    height: 1em;
+}
 /*
 ###########################################################
 # PLAYERS SCREENS - ROWS
