@@ -73,6 +73,7 @@ Pour être prévenu·e des nouvelles versions de Papi-web, il suffit de s'abonne
 | CLEMENCEAU Cyril    | AFC   | BRE   | 29  | Échiquier du Léon                             |
 | DELMOTTE Eric       | AFE1  | BFC   | 71  | L'Échiquier Châlonnais                        |
 | FRAYSSE Sébastien   | AFO2  | BRE   | 29  | Échiquier Quimpérois                          |
+| GRANCHER Étienne    | AFO1  | NOR   | 76  | Le Fou du Roi Montivilliers                   |
 | GUINET Kevin        |       | PDL   | 72  | L'Échiquier Fertois                           |
 | JOLY Christian      | AFO1  | ARA   | 42  | Échiquier Sportif de St Étienne               |
 | LABORDE Stéphane    | AFO1  | OCC   | 66  | Perpignan - Les rois de la Tet                |
