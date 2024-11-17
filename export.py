@@ -49,7 +49,6 @@ def build_exe():
         '--hiddenimport=data',
         '--hiddenimport=database',
         '--hiddenimport=ffe',
-        '--hiddenimport=test',
         '--hiddenimport=web',
         '--paths=.',
         '--icon=web/static/images/papi-web.ico',
