@@ -716,8 +716,8 @@ class EventDatabase(SQLiteDatabase):
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
-        target_version = Version('2.4.9')
-        if self.version.public in ['2.4.8', ]:
+        target_version = Version('2.4.10')
+        if self.version.public in ['2.4.8', '2.4.9', ]:
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')

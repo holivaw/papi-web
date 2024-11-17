@@ -2,6 +2,9 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.10 - 17 novembre 2024
+- Correction d'un bug sur l'affichage des tournois privés à venir
+
 ## Version 2.4.9 - 17 novembre 2024
 - Correction d'un bug sur le téléchargement des tournois sur le site fédéral
 
