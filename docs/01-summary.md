@@ -60,6 +60,7 @@ Pour être prévenu·e des nouvelles versions de Papi-web, il suffit de s'abonne
 
 | Arbitre             | Titre | Ligue | Dép | Club                                          |
 |---------------------|-------|-------|-----|-----------------------------------------------|
+| ADELINE Bruno       | AFE1  | NOR   | 27  | Aile Roi Louviers                             |
 | ADRAN Claude        | AF02  | EST   | 57  | Vandoeuvre-Échecs                             |
 | AGUERO Pablo Daniel |       | NAQ   | 40  | Dax Échiquier Dacquois                        |
 | ARMES Timothy       | AFO1  | ARA   | 26  | Échiquier Romanais-Péageois                   |
@@ -84,7 +85,7 @@ Pour être prévenu·e des nouvelles versions de Papi-web, il suffit de s'abonne
 | LOUDIER Sarah       | AFC   | BRE   | 22  | Tregor Échecs                                 |
 | PERCHE Ludovic      | AFO2  | NAQ   | 16  | Échiquier Couronnais                          |
 | PERNOT Damien       | AFO1  | BRE   | 35  | Betton Échecs Club                            |
-| PLAT Sammy          | AFO2  | BRE   | 35  | Rennes Paul Bert                              |
+| PLAT Sammy          | AFE1  | BRE   | 35  | Rennes Paul Bert                              |
 | PORTE Pierre        |       | ARA   | 73  | Académie d'Échecs d'Aix les bains             |
 | REGAUD Denis        | AFE2  | NAQ   | 33  | Salon Nostradamus                             |
 | RUHLMANN Dominique  | AFE1  | BRE   | 35  | Échiquier du pays de Liffré                   |
