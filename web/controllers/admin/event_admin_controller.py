@@ -415,7 +415,6 @@ class EventAdminController(AbstractEventAdminController):
                                 web_context.admin_event.stored_event.stop)
                             data['background_image_checkbox'] = WebContext.value_to_form_data(
                                 web_context.admin_event.stored_event.hide_background_image)
-                            logger.error(f'data[background_image_checkbox]=[{data["background_image_checkbox"]}]')
                             data['background_image'] = WebContext.value_to_form_data(
                                 web_context.admin_event.stored_event.background_image)
                             data['background_color'] = WebContext.value_to_form_data(
