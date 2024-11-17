@@ -15,6 +15,7 @@ altgraph~=0.17.4
 annotated-types~=0.7.0
 # anyio is required by Litestar
 anyio~=4.6.2post1
+babel~=2.16.0
 backports.tarfile~=1.2.0
 certifi~=2024.8.30
 cffi~=1.17.1
