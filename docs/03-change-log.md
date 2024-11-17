@@ -2,6 +2,11 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.8 - 17 novembre 2024
+- Ajout de la possibilité de ne pas utiliser d'image de fond
+- Correction d'un bug sur l'affichage des drapeaux des fédérations sur les écrans de pointage des écrans rotatifs
+- Correction d'un bug empêchant l'affichage des appariements par ordre alphabétique
+
 ## Version 2.4.7 - 15 novembre 2024
 - Affichage des drapeaux des fédérations sur les écrans de pointage des arbitres
 - Correction d'un bug sur la récupération des évènements des versions précédentes

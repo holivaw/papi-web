@@ -10,7 +10,7 @@ from common.papi_web_config import PapiWebConfig
 logger: Logger = get_logger()
 
 
-def inline_image_url(image: str, ) -> str:
+def inline_image_url(image: str | None) -> str:
     """
     Return a true URL or
     :param image: an already true-URL (absolute or relative starting by '/')
@@ -19,7 +19,7 @@ def inline_image_url(image: str, ) -> str:
     If no file could be found, returns the error image.
     """
     if not image:
-        return PapiWebConfig.default_background_image
+        return ''
     if image.startswith('/') or validators.url(image):
         return image
     file: Path = PapiWebConfig.custom_path / image

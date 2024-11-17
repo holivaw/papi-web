@@ -144,6 +144,8 @@ class Event:
 
     @cached_property
     def background_image(self) -> str:
+        if self.stored_event.hide_background_image:
+            return ''
         background_image: str = PapiWebConfig.default_background_image
         if not self.stored_event.background_image:
             self.add_debug(f'pas d\'image de fond définie, image de fond par défaut : [{background_image}]')

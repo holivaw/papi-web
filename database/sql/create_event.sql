@@ -19,6 +19,7 @@ CREATE TABLE `info` (
     `stop` FLOAT NOT NULL,
     `public` INTEGER,
     `path` TEXT,
+    `hide_background_image` INTEGER,
     `background_image` TEXT,
     `background_color` TEXT,
     `update_password` TEXT,

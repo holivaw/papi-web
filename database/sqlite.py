@@ -229,9 +229,10 @@ class EventDatabase(SQLiteDatabase):
                     self._check_populate_dict(
                         yml_file, '', event_dict,
                         mandatory_fields=['name', ],
-                        optional_fields=['start', 'stop', 'path', 'background_image', 'background_color', 'public',
-                                         'update_password', 'record_illegal_moves', 'chessevents', 'tournaments',
-                                         'timers', 'screens', 'families', 'rotators', 'timer_colors', 'timer_delays', ],
+                        optional_fields=['start', 'stop', 'path', 'hide_background_image', 'background_image',
+                                         'background_color', 'public', 'update_password', 'record_illegal_moves',
+                                         'chessevents', 'tournaments', 'timers', 'screens', 'families', 'rotators',
+                                         'timer_colors', 'timer_delays', ],
                         empty_allowed=False)
                     timer_delays: dict[int, int] | None = None
                     if 'timer_delays' in event_dict:
@@ -259,6 +260,8 @@ class EventDatabase(SQLiteDatabase):
                         start=event_start,
                         stop=event_stop,
                         path=event_dict.get('path', None),
+                        hide_background_image=event_dict.get(
+                            'hide_background_image', PapiWebConfig.default_hide_background_image),
                         background_image=event_dict.get('background_image', None),
                         background_color=event_dict.get('background_color', None),
                         update_password=event_dict.get('update_password', None),
@@ -638,6 +641,9 @@ class EventDatabase(SQLiteDatabase):
             stop=row['stop'],
             public=self.load_bool_from_database_field(row['public']),
             path=row['path'],
+            # needed to open event databases when version < 2.4.8 before checking the version
+            hide_background_image=self.load_bool_from_database_field(
+                row.get('hide_background_image', PapiWebConfig.default_hide_background_image)),
             background_image=row['background_image'],
             background_color=row['background_color'],
             update_password=row['update_password'],
@@ -701,8 +707,12 @@ class EventDatabase(SQLiteDatabase):
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
-        target_version = Version('2.4.7')
-        if self.version.public in ['2.4.5', '2.4.6', ]:
+        target_version = Version('2.4.8')
+        if self.version.public in ['2.4.5', '2.4.6', '2.4.7', ]:
+            self._execute('ALTER TABLE `info` ADD `hide_background_image` INTEGER')
+            self._execute(
+                'UPDATE `info` SET `hide_background_image` = ?',
+                (1 if PapiWebConfig.default_hide_background_image else 0, ))
             self.set_version(target_version)
             self.commit()
             logger.debug(f'La base de données {self.file.name} a été mise à jour en version {target_version}.')
@@ -731,13 +741,14 @@ class EventDatabase(SQLiteDatabase):
         """Updates the event database with the information in the provided
         `stored_event`."""
         fields: list[str] = [
-            'name', 'start', 'stop', 'public', 'path', 'background_image', 'background_color', 'update_password',
-            'record_illegal_moves', 'timer_colors', 'timer_delays', 'last_update',
+            'name', 'start', 'stop', 'public', 'path', 'hide_background_image', 'background_image', 'background_color',
+            'update_password', 'record_illegal_moves', 'timer_colors', 'timer_delays', 'last_update',
         ]
         params: tuple = (
             stored_event.name, stored_event.start, stored_event.stop, stored_event.public, stored_event.path,
-            stored_event.background_image, stored_event.background_color, stored_event.update_password,
-            stored_event.record_illegal_moves, self.dump_to_json_database_timer_colors(stored_event.timer_colors),
+            stored_event.hide_background_image, stored_event.background_image, stored_event.background_color,
+            stored_event.update_password, stored_event.record_illegal_moves,
+            self.dump_to_json_database_timer_colors(stored_event.timer_colors),
             self.dump_to_json_database_timer_delays(stored_event.timer_delays),
             time.time(),
         )

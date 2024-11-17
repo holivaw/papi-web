@@ -240,6 +240,7 @@ class EventAdminController(AbstractEventAdminController):
                 raise ValueError(f'action=[{action}]')
         public: bool | None = WebContext.form_data_to_bool(data, 'public')
         path: str | None = None
+        hide_background_image: bool | None = None
         background_image: str | None = None
         background_color: str | None = None
         update_password: str | None = None
@@ -252,24 +253,26 @@ class EventAdminController(AbstractEventAdminController):
                 path = WebContext.form_data_to_str(data, 'path')
                 update_password = WebContext.form_data_to_str(data, 'update_password')
                 field = 'background_image'
-                if background_image := WebContext.form_data_to_str(data, field, ''):
-                    if validators.url(background_image):
-                        try:
-                            response = requests.get(background_image)
-                            if response.status_code != 200:
-                                errors[field] = \
-                                    f'L\'URL [{background_image}] est en erreur (code [{response.status_code}]).'
-                        except requests.ConnectionError as ce:
-                            errors[field] = f'L\'URL [{background_image}] est en erreur ([{ce}]).'
-                    else:
-                        background_image = background_image.strip('/')
-                        if background_image.find('..') != -1:
-                            errors[field] = f'Le chemin [{background_image}] est incorrect.'
-                            data[field] = ''
+                hide_background_image = WebContext.form_data_to_bool(data, field + '_checkbox')
+                if not hide_background_image:
+                    if background_image := WebContext.form_data_to_str(data, field, ''):
+                        if validators.url(background_image):
+                            try:
+                                response = requests.get(background_image)
+                                if response.status_code != 200:
+                                    errors[field] = \
+                                        f'L\'URL [{background_image}] est en erreur (code [{response.status_code}]).'
+                            except requests.ConnectionError as ce:
+                                errors[field] = f'L\'URL [{background_image}] est en erreur ([{ce}]).'
                         else:
-                            file: Path = PapiWebConfig.custom_path / background_image
-                            if not file.exists():
-                                errors[field] = f'Le fichier [{background_image}] est introuvable.'
+                            background_image = background_image.strip('/')
+                            if background_image.find('..') != -1:
+                                errors[field] = f'Le chemin [{background_image}] est incorrect.'
+                                data[field] = ''
+                            else:
+                                file: Path = PapiWebConfig.custom_path / background_image
+                                if not file.exists():
+                                    errors[field] = f'Le fichier [{background_image}] est introuvable.'
                 field: str = 'background_color'
                 color_checkbox = WebContext.form_data_to_bool(data, field + '_checkbox')
                 if not color_checkbox:
@@ -299,6 +302,7 @@ class EventAdminController(AbstractEventAdminController):
             case 'clone':
                 path = web_context.admin_event.stored_event.path
                 update_password = web_context.admin_event.stored_event.update_password
+                hide_background_image = web_context.admin_event.stored_event.hide_background_image
                 background_image = web_context.admin_event.stored_event.background_image
                 background_color = web_context.admin_event.stored_event.background_color
                 record_illegal_moves = web_context.admin_event.stored_event.record_illegal_moves
@@ -315,6 +319,7 @@ class EventAdminController(AbstractEventAdminController):
             stop=stop,
             public=public,
             path=path,
+            hide_background_image=hide_background_image,
             background_image=background_image,
             background_color=background_color,
             update_password=update_password,
@@ -351,7 +356,6 @@ class EventAdminController(AbstractEventAdminController):
                                f'    data: {{ "image": "{item_str}", "color": $("#background-color").val() }},'
                                f'    success: function(data) {{'
                                f'        $("#background-image-test").css("background-image", data["url"]);'
-                               f'        $("#background-image-test").css("background-color", data["color"]);'
                                f'    }},'
                                f'    error: function(jqXHR, exception) {{'
                                f'        console.log('
@@ -409,6 +413,9 @@ class EventAdminController(AbstractEventAdminController):
                                 web_context.admin_event.stored_event.start)
                             data['stop'] = WebContext.value_to_datetime_form_data(
                                 web_context.admin_event.stored_event.stop)
+                            data['background_image_checkbox'] = WebContext.value_to_form_data(
+                                web_context.admin_event.stored_event.hide_background_image)
+                            logger.error(f'data[background_image_checkbox]=[{data["background_image_checkbox"]}]')
                             data['background_image'] = WebContext.value_to_form_data(
                                 web_context.admin_event.stored_event.background_image)
                             data['background_color'] = WebContext.value_to_form_data(

@@ -159,7 +159,7 @@ class PapiWebConfig(metaclass=Singleton):
     def ffe_upload_delay(self) -> int:
         return self.__ffe_upload_delay
 
-    version: Version = Version('2.4.7')
+    version: Version = Version('2.4.8')
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
@@ -273,6 +273,8 @@ class PapiWebConfig(metaclass=Singleton):
     allowed_columns: list[int] = [1, 2, 3, 4, 6]
 
     default_columns: int = 4
+
+    default_hide_background_image: bool = False
 
     default_background_image: str = '/static/images/papi-web-background.png'
 

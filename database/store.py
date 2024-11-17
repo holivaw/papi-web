@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from papi_web_config import PapiWebConfig
+
 """
 All the classes of this module are basic data classed stored into event databases.
 """
@@ -154,6 +156,7 @@ class StoredEvent:
     stop: float
     public: bool = False
     path: str | None = None
+    hide_background_image: bool = PapiWebConfig.default_hide_background_image
     background_image: str | None = None
     background_color: str | None = None
     update_password: str | None = None
