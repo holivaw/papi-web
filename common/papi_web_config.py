@@ -159,7 +159,7 @@ class PapiWebConfig(metaclass=Singleton):
     def ffe_upload_delay(self) -> int:
         return self.__ffe_upload_delay
 
-    version: Version = Version('2.4.10')
+    version: Version = Version('2.4.11')
 
     url: str = 'https://github.com/papi-web-org/papi-web'
 
@@ -172,6 +172,8 @@ class PapiWebConfig(metaclass=Singleton):
     arch_ext: str = 'arch'
 
     custom_path: Path = Path().absolute() / 'custom'
+
+    embedded_custom_path: Path = Path(__file__).resolve().parent.parent / 'custom'
 
     default_papi_path: Path = Path() / 'papi'
 

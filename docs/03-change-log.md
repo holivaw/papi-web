@@ -2,6 +2,10 @@
 
 # Papi-web - ChangeLog
 
+## Version 2.4.11 - 18 novembre 2024
+- Correction d'un bug sur la saisie des résultats
+- Ajout de la possibilité de récupérer la configuration d'une version antérieure
+
 ## Version 2.4.10 - 17 novembre 2024
 - Correction d'un bug sur l'affichage des tournois privés à venir
 

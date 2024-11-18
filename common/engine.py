@@ -105,19 +105,19 @@ class Engine:
                 if len(previous_databases) == 1:
                     while True:
                         match input_interactive(
-                            f'Voulez-vous récupérer les évènements de la version {previous_versions[0]} [O/n] ?'):
+                            f'Voulez-vous récupérer la configuration de la version {previous_versions[0]} [O/n] ?'):
                             case '' | 'O':
                                 version_num = 1
                                 break
                             case 'N':
                                 break
                 else:
-                    print_interactive(f'Veuillez choisir la version dont vous souhaitez récupérer les évènements :')
+                    print_interactive(f'Veuillez choisir la version dont vous souhaitez récupérer la configuration :')
                     version_range = range(1, len(previous_versions) + 1)
                     for num in version_range:
                         version: Version = previous_versions[num - 1]
                         print_interactive(f'  - [{num}] {version} ({", ".join([file.stem for file in previous_databases[version]])})')
-                    print_interactive('  - [Q] ne pas restaurer')
+                    print_interactive('  - [Q] ne rien récupérer')
                     while True:
                         match choice := input_interactive(f'Veuillez choisir la version [{previous_versions[-1]}] :'):
                             case 'Q':
@@ -135,7 +135,7 @@ class Engine:
                                     pass
                 if version_num is not None:
                     recovered_version = previous_versions[version_num - 1]
-                    self._recover_previous_version_events(recovered_version, previous_databases[recovered_version])
+                    self._recover_previous_version(recovered_version, previous_databases[recovered_version])
             if not recovered_version:
                 while True:
                     match input_interactive('Voulez-vous installer des bases de données d\'exemple [O/n] ?'):
@@ -150,9 +150,11 @@ class Engine:
                             break
 
     @classmethod
-    def _recover_previous_version_events(cls, version: Version, files: list[Path]):
+    def _recover_previous_version(cls, version: Version, files: list[Path]):
+        """Recover all the configuration of a previous version (events, Papi files and customization files)."""
         logger.info('Récupération des évènements de la version %s...', version)
         tournaments_number: int = 0
+        version_dir = Path('..') / f'papi-web-{version}'
         for file in files:
             event_uniq_id: str = file.stem
             logger.info('Récupération de l\'évènement %s...', event_uniq_id)
@@ -162,8 +164,7 @@ class Engine:
             # now open the event database to search for local Papi files
             event: Event = EventLoader.get(request=None).load_event(event_uniq_id)
             for tournament in event.tournaments_by_id.values():
-                src_file: Path = Path('..') / f'papi-web-{version}' / 'papi' \
-                                 / f'{tournament.filename}.{PapiWebConfig.papi_ext}'
+                src_file: Path = version_dir / 'papi' / f'{tournament.filename}.{PapiWebConfig.papi_ext}'
                 if tournament.path == PapiWebConfig.default_papi_path and src_file.exists():
                     # recover the Papi file where stored in the default folder
                     logger.info(
@@ -171,8 +172,22 @@ class Engine:
                     shutil.copy(src_file, tournament.file)
                     logger.debug(str(src_file) + ' > ' + str(tournament.file))
                     tournaments_number += 1
-        logger.info('Évènements récupérés : %d (dans le répertoire %s)', len(files), PapiWebConfig.event_path)
-        logger.info('Tournois récupérés : %d (dans le répertoire %s)', tournaments_number, PapiWebConfig.default_papi_path)
+        custom_files_number: int = 0
+        if version >= Version('2.4.11'):  # from 2.4.11 only user custom files are found in /custom
+            custom_dir: Path = version_dir / 'custom'
+            if custom_dir.is_dir():
+                custom_files_number = len([item for item in custom_dir.glob('**/*') if item.is_file()])
+                shutil.copytree(custom_dir, PapiWebConfig.custom_path, dirs_exist_ok=True)
+        logger.info(
+            'Évènements récupérés : %d (dans le répertoire %s)',
+            len(files), PapiWebConfig.event_path)
+        logger.info(''
+                    'Tournois récupérés : %d (dans le répertoire %s)',
+                    tournaments_number, PapiWebConfig.default_papi_path)
+        if custom_files_number:
+            logger.info(
+                'Fichiers de personnalisation récupérés : %d (dans le répertoire %s)',
+                custom_files_number, PapiWebConfig.custom_path)
 
 
     @classmethod
