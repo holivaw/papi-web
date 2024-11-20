@@ -1,9 +1,13 @@
+import filecmp
 import json
 import logging
 import platform
 import re
 import shutil
+import time
+import webbrowser
 import zipfile
+from datetime import datetime
 from json import JSONDecodeError
 from logging import Logger
 from pathlib import Path
@@ -11,7 +15,7 @@ from typing import Any
 
 import pyodbc
 from packaging.version import Version
-from requests import Response, get
+from requests import Response, get, request
 from requests.exceptions import ConnectionError, Timeout, RequestException, \
     HTTPError  # pylint: disable=redefined-builtin
 
@@ -172,23 +176,142 @@ class Engine:
                     shutil.copy(src_file, tournament.file)
                     logger.debug(str(src_file) + ' > ' + str(tournament.file))
                     tournaments_number += 1
-        custom_files_number: int = 0
-        if version >= Version('2.4.11'):  # from 2.4.11 only user custom files are found in /custom
-            custom_dir: Path = version_dir / 'custom'
-            if custom_dir.is_dir():
-                custom_files_number = len([item for item in custom_dir.glob('**/*') if item.is_file()])
-                shutil.copytree(custom_dir, PapiWebConfig.custom_path, dirs_exist_ok=True)
+        custom_files: list[Path] = []
+        custom_dir: Path = version_dir / 'custom'
+        if custom_dir.is_dir():
+            for item in custom_dir.glob('**/*'):
+                if item.is_file():
+                    embedded_item: Path = Path(str(item).replace(str(custom_dir), str(PapiWebConfig.embedded_custom_path)))
+                    if not embedded_item.exists() or not filecmp.cmp(item, embedded_item):
+                        target_item: Path = Path(str(item).replace(str(custom_dir), str(PapiWebConfig.custom_path)))
+                        target_item.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy(item, target_item)
+                        custom_files.append(item)
         logger.info(
             'Évènements récupérés : %d (dans le répertoire %s)',
             len(files), PapiWebConfig.event_path)
         logger.info(''
                     'Tournois récupérés : %d (dans le répertoire %s)',
                     tournaments_number, PapiWebConfig.default_papi_path)
-        if custom_files_number:
+        if custom_files:
             logger.info(
                 'Fichiers de personnalisation récupérés : %d (dans le répertoire %s)',
-                custom_files_number, PapiWebConfig.custom_path)
+                len(custom_files), PapiWebConfig.custom_path)
+            for custom_file in custom_files:
+                logger.info(f'- {str(custom_file).replace(str(custom_dir), "")}')
+            while True:
+                match input_interactive(
+                    'Voulez-vous transmettre ces fichiers aux développeur·euses de Papi-web pour qu\'ils soient '
+                    'intégrés dans une future version [O/n] ?'):
+                    case '' | 'O':
+                        cls._send_custom_files({
+                            str(custom_file).replace(str(custom_dir), '').replace('\\', '/').lstrip('/'): custom_file
+                            for custom_file in custom_files
+                        })
+                        break
+                    case 'N':
+                        break
 
+    @classmethod
+    def _filebin_url(cls, path: str) -> str:
+        """Returns a URL on filebin.net."""
+        return f'https://filebin.net/{path}'
+
+    @classmethod
+    def _bin_url(cls, bin_name: str) -> str:
+        """Returns the URL of a bin on filebin.net."""
+        return cls._filebin_url(bin_name)
+
+    @classmethod
+    def _bin_zip_url(cls, bin_name: str) -> str:
+        """Returns the URL to download a bin as a zip file from filebin.net."""
+        return cls._filebin_url(f'archive/{bin_name}/zip')
+
+    @classmethod
+    def _bin_request(
+            cls, method: str, path: str, data: dict[str, str] | None, files: dict[str, Path] | None) -> bool:
+        """Do a request on filebin.net with optional payload and attached files."""
+        url: str = cls._filebin_url(path)
+        handlers: dict[str, Any] = {}
+        debug: bool = False
+        try:
+            if debug:
+                logger.info('_bin_request(method=%s, url=%s)', method, url)
+                if data:
+                    logger.info('- data:')
+                    for field_id, field in data.items():
+                         logger.info(
+                            '  - %s: [%s]', field_id,
+                             field[:64] + ('...' if len(field) > 64 else '') if field else 'None')
+                if files:
+                    logger.info('- files:')
+                    for field_id, file in files.items():
+                        logger.info('  - %s: [%s]', field_id, file)
+            if not data and not files:
+                response: Response = request(method=method, url=url)
+            elif not files:
+                response: Response = request(method=method, url=url, data=data)
+            else:
+                handlers = {
+                    file_id: open(file_name, 'rb')
+                    for file_id, file_name in files.items()
+                }
+                response: Response = request(method=method, url=url, data=data, files=handlers)
+                for handler in handlers.values():
+                    handler.close()
+            response.raise_for_status()
+            content: str = response.content.decode()
+            if debug:
+                logger.info(f'content={content}')
+            return True
+        except ConnectionError as e:
+            logger.error('Veuillez vérifier votre connection à internet [%s] : %s', url, e)
+        except Timeout as e:
+            logger.error('Le site filebin.net est indisponible [%s] : %s', url, e)
+        except RequestException as e:
+            logger.error('Le site filebin.net a renvoyé une erreur [%s] : %s', url, e)
+        for handler in handlers.values():
+            handler.close()
+        return False
+
+    @classmethod
+    def _upload_bin_files(cls, bin_name: str, files: dict[str, Path]) -> bool:
+        """Upload a dict of files to filebin.net."""
+        for filename, file in files.items():
+            if not cls._bin_request(method='POST', path=f'{bin_name}/{filename}', data=None, files={filename: file}):
+                return False
+        return True
+
+    @classmethod
+    def _send_custom_files(cls, custom_files: dict[str, Path]):
+        """Sends the custom files to filebin.net and proposes to email the developers."""
+        logger.info('Envoi des fichiers sur un serveur en ligne...')
+        datetime_str: str = datetime.strftime(datetime.fromtimestamp(time.time()), "%Y-%m-%d-%H-%M-%S")
+        bin_name: str = f'papi-web-custom-files-{datetime_str}'
+        if cls._upload_bin_files(bin_name, custom_files):
+            logger.info('Les fichiers ont été envoyé dans la corbeille %s :', bin_name)
+            logger.info('- Voir les fichiers en ligne : %s', cls._bin_url(bin_name))
+            logger.info('- Télécharger au format ZIP : %s', cls._bin_zip_url(bin_name))
+            subject: str = '[Papi-web] Demande d\'intégration de fichiers de personnalisation'
+            body: str = '<p>Bonjour,</p>'
+            body += '<p>J\'aimerais que les fichiers suivants soient intégrés dans une prochaine distribution de Papi-web :</p>'
+            body += '<ul>'
+            for filename in custom_files:
+                body += f'<li>{filename}</li>'
+            body += '</ul>'
+            body += '<p>Merci :-)</p>'
+            body += '<ul>'
+            body += f'<li><a href="{cls._bin_url(bin_name)}">Voir les fichiers déposés sur filebin.net</a></li>'
+            body += f'<li><a href="{cls._bin_zip_url(bin_name)}">Télécharger au format ZIP</a></li>'
+            body += '</ul>'
+            body += '<p>Ajoutez ici toutes les informations que vous jugez nécessaires, et si vous n\'êtes pas connu·e du projet, présentez-vous !</p>'
+            body += '<p>Prénom NOM</p>'
+            mail_url: str = f'mailto:{PapiWebConfig.mail}?subject={subject}&html-body={body}'
+            logger.info(
+                'Une fenêtre va \'ouvrir pour envoyer un mél au projet Papi-web ; si la fenêtre ne s\'ouvre pas, '
+                'veuillez cliquer sur le lien ci-dessous ou envoyer manuellement un mail à %s.', PapiWebConfig.mail)
+            logger.info('%s', mail_url)
+            webbrowser.open(mail_url, 0)
 
     @classmethod
     def _check_version(cls) -> Version | None:
